@@ -1,5 +1,13 @@
 
-from .youtube_nodes import NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS
+from .youtube_nodes import YouTubeVideoLoader
 
 
-__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
+NODE_CLASS_MAPPINGS = {
+    "YouTubeVideoLoader": YouTubeVideoLoader
+}
+
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "YouTubeVideoLoader": "YouTube Video Loader"
+}
+
+__all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]
