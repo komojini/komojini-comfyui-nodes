@@ -41,12 +41,14 @@ def merge_images(images1, images2, x1, y1, x2, y2, line_thickness):
     # Combine the corresponding regions from each image
     merged_images = images1 * mask.float() + images2 * (~mask).float()
     
-    try:
-        line_mask_values = line_mask_equation(x1, y1, x2, y2, coords[..., 0], coords[..., 1], line_thickness)
-        line_mask_values = line_mask_values.unsqueeze(0).unsqueeze(3).expand(batch_size, height, width, channels)
-        merged_images = merged_images * (~line_mask_values).float() + line_mask_values.float()
-    except Exception as e:
-        print(e)
+    if line_thickness:
+        try:
+            line_mask_values = line_mask_equation(x1, y1, x2, y2, coords[..., 0], coords[..., 1], line_thickness)
+            line_mask_values = line_mask_values.unsqueeze(0).unsqueeze(3).expand(batch_size, height, width, channels)
+            merged_images = merged_images * (~line_mask_values).float() + line_mask_values.float()
+        except Exception as e:
+            print(e)
+            
     return merged_images
 
 
@@ -59,7 +61,7 @@ class ImageMerger:
                 "images_1": ("IMAGE",),
                 "images_2": ("IMAGE",),
                 "divide_points": ("STRING", {"default": "(50%, 0);(50%, 100%)"}),
-                "line_thickness": ("INT", {"default": 4, "min": 0, "max": 1000}),
+                "line_thickness": ("INT", {"default": 0, "min": 0, "max": 1000, "step": 1}),
             },
         }
     
