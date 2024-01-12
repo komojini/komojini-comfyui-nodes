@@ -17,7 +17,12 @@ def tensor_to_bytes(tensor):
 def line_equation(x1, y1, x2, y2, x, y):
     return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1)
 
-def merge_images(images1, images2, x1, y1, x2, y2):
+
+def line_mask_equation(x1, y1, x2, y2, x, y, size):
+    distance = np.abs((x - x1) * (y2 - y1) - (y - y1) * (x2 - x1)) / np.sqrt((y2 - y1)**2 + (x2 - x1)**2)
+    return distance <= size / 2
+
+def merge_images(images1, images2, x1, y1, x2, y2, line_thickness):
     batch_size, height, width, channels = images1.shape
 
     # Create 2D grid of (x, y) coordinates
@@ -35,7 +40,13 @@ def merge_images(images1, images2, x1, y1, x2, y2):
 
     # Combine the corresponding regions from each image
     merged_images = images1 * mask.float() + images2 * (~mask).float()
-
+    
+    try:
+        line_mask_values = line_mask_equation(x1, y1, x2, y2, coords[..., 0], coords[..., 1], line_thickness)
+        line_mask_values = line_mask_values.unsqueeze(0).unsqueeze(3).expand(batch_size, height, width, channels)
+        merged_images = merged_images * (~line_mask_values).float() + line_mask_values.float()
+    except Exception as e:
+        print(e)
     return merged_images
 
 
@@ -44,19 +55,23 @@ class ImageMerger:
     def INPUT_TYPES(s):
 
         return {
-            "images_1": ("IMAGE",),
-            "images_2": ("IMAGE",),
-            "divide_points": ("STRING", {"default": "(50%, 0);(50%, 100%)"})
+            "required": {
+                "images_1": ("IMAGE",),
+                "images_2": ("IMAGE",),
+                "divide_points": ("STRING", {"default": "(50%, 0);(50%, 100%)"}),
+                "line_thickness": ("INT", {"default": 4, "min": 0, "max": 1000}),
+            },
         }
     
     FUNCTION = "merge_video"
     CATEGORY = "komojini/Image"
-    RETURN_NAMES = ("images",)
-    RETURN_TYPES = ("IMAGE",)
+    RETURN_NAMES = ("images", "num_images",)
+    RETURN_TYPES = ("IMAGE", "INT",)
 
-    def merge_video(self, images_1, images_2, divide_points):
+    def merge_video(self, images_1, images_2, divide_points, line_thickness):
         # image.shape = (num_imgs, height, width, channels)
         num_images, height, width, _ = images_1.shape
+        print(f"start merge images, images_1.shape: {images_1.shape}")
         marks = []
         for mark_string in divide_points.split(";"):
             xy = self.get_xy(mark_string, height, width)
@@ -75,18 +90,20 @@ class ImageMerger:
                 images1=images_1,
                 images2=images_2,
                 x1=x1, y1=y1, x2=x2, y2=y2,
+                line_thickness=line_thickness,
             )
 
-        return merged_images
+        print(f"merged_images.shape: {merged_images.shape}")
+        return (merged_images, len(merged_images))
 
 
-    @classmethod
-    def VALIDATE_INPUTS(self, image_1, image_2, divide_marks):
-        if image_1.shape == image_2.shape and len(divide_marks.split(";")) > 1:
-            return True
-        else:
-            print(f"image_1.shape: {image_1.shape}\nimage_2.shape: {image_2.shape}\ndivide_marks: {divide_marks}\n")
-            return False
+    # @classmethod
+    # def VALIDATE_INPUTS(self, images_1, images_2, divide_points):
+    #     if images_1.shape == images_2.shape and len(divide_points.split(";")) > 1:
+    #         return True
+    #     else:
+    #         print(f"image_1.shape: {images_1.shape}\nimage_2.shape: {images_2.shape}\ndivide_marks: {divide_points}\n")
+    #         return False
     
     @staticmethod
     def get_xy(mark_string: str, height: int, width: int) -> Tuple[int, int] | None:
@@ -104,7 +121,7 @@ class ImageMerger:
         else:
             x = int(x)
 
-        if y.endswith("%")
+        if y.endswith("%"):
             y = y[:-1]
             y = int(y)
             y = int(height * y / 100)
