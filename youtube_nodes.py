@@ -71,20 +71,19 @@ class YouTubeVideoLoader:
 
             # Calculate the total number of frames in the specified time range
             video_sec = end_sec - start_sec
+            original_frame_length = video_sec * fps
 
-            new_fps = int(frame_load_cap / video_sec)
-            new_fps = min(new_fps, fps)
+            step = max(original_frame_length // frame_load_cap, 1)
 
-            # Set the new fps
-            cap.set(cv2.CAP_PROP_FPS, new_fps)
-
-            start_frame = new_fps * start_sec
-            end_frame = new_fps * end_sec
+            start_frame = fps * start_sec
+            end_frame = fps * end_sec
 
             frames_added = 0
             images = []
 
             curr_frame = start_frame
+
+            print(f"start_frame: {start_frame}\nend_frame: {end_frame}\nstep: {step}\n")
 
             while True:
                 # Set the frame position
@@ -109,7 +108,7 @@ class YouTubeVideoLoader:
                 if curr_frame >= end_frame:
                     break
 
-                curr_frame += 1
+                curr_frame += step
         finally:
             
             # Release the video capture object
@@ -121,4 +120,4 @@ class YouTubeVideoLoader:
         
         #Setup lambda for lazy audio capture
         #audio = lambda : get_audio(video, skip_first_frames * target_frame_time, frame_load_cap*target_frame_time)
-        return (images, frames_added, new_fps, width, height)
+        return (images, frames_added, fps // step, width, height)
