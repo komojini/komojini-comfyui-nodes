@@ -4,8 +4,7 @@ Custom ComfyUI Nodes for video generation
 ## Nodes
 ### YouTube Video Loader
 Able to load and extract video from youtube.
-
-![YouTube Video Loader](assets/youtube_video_loader.png)
+<img width="80%" src="assets/youtube_video_loader.png"/>
 
 ### Image Merger
 Able to merge 2 images or videos side by side.
@@ -18,5 +17,6 @@ e.g.
 - (50%, 0);(50%, 100%) -> split by vertical line in the center
 - (0%, 50%);(100%, 50%) -> split by horizontal line in the center
 - (40%, 0);(70%, 100%) ->
-https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/419ccc8f-aa08-476a-b7f2-460b2d4fa2eb
+<img width="80%" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/419ccc8f-aa08-476a-b7f2-460b2d4fa2eb"/>
+
 
