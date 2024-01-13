@@ -17,5 +17,6 @@ for "x" and "y", you can use int (pixel) or with %.
 e.g. 
 - (50%, 0);(50%, 100%) -> split by vertical line in the center
 - (0%, 50%);(100%, 50%) -> split by horizontal line in the center
-- (40%, 0);(70%, 100%)
+- (40%, 0);(70%, 100%) ->
+https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/419ccc8f-aa08-476a-b7f2-460b2d4fa2eb
 
