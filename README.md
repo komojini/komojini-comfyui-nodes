@@ -17,6 +17,5 @@ e.g.
 - (50%, 0);(50%, 100%) -> split by vertical line in the center
 - (0%, 50%);(100%, 50%) -> split by horizontal line in the center
 - (40%, 0);(70%, 100%) ->
-<img width="80%" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/419ccc8f-aa08-476a-b7f2-460b2d4fa2eb"/>
-
+<img width="80%" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/585b46d7-2a73-4cc2-be29-68d02db0fe1c"/>
 
