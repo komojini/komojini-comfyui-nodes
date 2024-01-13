@@ -17,7 +17,6 @@ def tensor_to_bytes(tensor):
 def line_equation(x1, y1, x2, y2, x, y):
     return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1)
 
-
 def line_mask_equation(x1, y1, x2, y2, x, y, size):
     distance = np.abs((x - x1) * (y2 - y1) - (y - y1) * (x2 - x1)) / np.sqrt((y2 - y1)**2 + (x2 - x1)**2)
     return distance <= size / 2
@@ -99,14 +98,6 @@ class ImageMerger:
         return (merged_images, len(merged_images))
 
 
-    # @classmethod
-    # def VALIDATE_INPUTS(self, images_1, images_2, divide_points):
-    #     if images_1.shape == images_2.shape and len(divide_points.split(";")) > 1:
-    #         return True
-    #     else:
-    #         print(f"image_1.shape: {images_1.shape}\nimage_2.shape: {images_2.shape}\ndivide_marks: {divide_points}\n")
-    #         return False
-    
     @staticmethod
     def get_xy(mark_string: str, height: int, width: int) -> Tuple[int, int] | None:
         mark_string = mark_string.strip()
