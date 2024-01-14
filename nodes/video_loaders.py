@@ -75,6 +75,9 @@ def process_video_cap(
     fps = int(video_cap.get(cv2.CAP_PROP_FPS))
     width, height = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
+    if not frame_load_cap or frame_load_cap <= 0:
+        frame_load_cap = 999999
+
     # Calculate the total number of frames in the specified time range
     video_sec = end_sec - start_sec
     original_frame_length = video_sec * fps
@@ -82,7 +85,7 @@ def process_video_cap(
     step = max(original_frame_length // frame_load_cap, 1)
     new_fps = fps // step
 
-    if max_fps and max_fps < new_fps:
+    if max_fps and 0 < max_fps < new_fps:
         if (step * new_fps) % new_fps != 0:
             print(f"Warning | new_fps: {new_fps}, max_fps: {max_fps}, modified step: int({step / max_fps * new_fps})")
         step = int(step / max_fps * new_fps)
