@@ -5,6 +5,14 @@ Custom ComfyUI Nodes for video generation
 ### YouTube Video Loader
 Able to load and extract video from youtube.
 <img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/cc99ea6f-e9ac-462d-abb9-ee6b11c0f381">
+Able to load and extract video from youtube.
+
+Args:
+- youtube_url
+- start_sec
+- end_sec
+- frame_load_cap: max frames to be returned, the fps will be changed automatically by durations and frame count. This will not increase the frame count of the original video.
+- output_dir (optional)
 
 ### Image Merger
 Able to merge 2 images or videos side by side.
