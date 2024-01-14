@@ -3,7 +3,7 @@ Custom ComfyUI Nodes for video generation
 
 ## Nodes
 ### YouTube Video Loader
-<img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/cc99ea6f-e9ac-462d-abb9-ee6b11c0f381">
+<img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/cc99ea6f-e9ac-462d-abb9-ee6b11c0f381">\n
 Able to load and extract video from youtube.
 
 Args:
