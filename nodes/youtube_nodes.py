@@ -1,15 +1,19 @@
 from pytube import YouTube
 import cv2
 import os
+from pathlib import Path
 from PIL import Image, ImageOps
 import numpy as np
-import sys
+
 import torch
 import subprocess
 import folder_paths
 
 
 video_extensions = ['webm', 'mp4', 'mkv', 'gif']
+
+def is_gif(filename: Path | str) -> bool:
+    return str(filename).endswith("gif")
 
 def get_audio(file, start_time=0, duration=0):
     # TODO: set ffmpeg_path
