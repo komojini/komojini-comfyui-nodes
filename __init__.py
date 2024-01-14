@@ -13,7 +13,7 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     "YouTubeVideoLoader": "YouTube Video Loader",
     "ImageMerger": "Image Merger",
-    "UltimateVideoLoader": "UltimateVideoLoader",
+    "UltimateVideoLoader": "🎥Ultimate Video Loader🎥",
 }
 
 
