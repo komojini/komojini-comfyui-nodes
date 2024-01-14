@@ -104,9 +104,10 @@ function widgetLogic(node, widget) {
 
 
 function handleUltimateVideoLoaderVisibility(node, source) {
+    const commonWidgets = ["start_sec", "end_sec", "force_size", "max_fps", "frame_load_cap"];
     const baseNamesMap = {
-        "YouTube": ["youtube_url", "start_sec", "end_sec", "force_size", "max_fps", "frame_load_cap"],
-        "filepath": ["video", "start_sec", "end_sec", "force_size", "max_fps", "frame_load_cap"],
+        "YouTube": ["youtube_url", ...commonWidgets],
+        "filepath": ["video", ...commonWidgets],
     };
 
     for (var key in baseNamesMap) {
