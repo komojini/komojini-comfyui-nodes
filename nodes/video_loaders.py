@@ -22,6 +22,7 @@ YOUTUBE_REQUIRED_INPUTS = {
                 "youtube_url": ("STRING", {"default": "youtube/url/here"}),
                 "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
                 "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
+                "force_size": (["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512"],),
                 "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
             }
 
@@ -63,6 +64,55 @@ def frame_to_tensor(frame) -> torch.Tensor:
     image = torch.from_numpy(image)[None,] 
     return image
 
+def process_video_cap(
+        video_cap,
+        start_sec,
+        end_sec,
+        frame_load_cap,
+    ):
+    fps = int(video_cap.get(cv2.CAP_PROP_FPS))
+    width, height = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    # Calculate the total number of frames in the specified time range
+    video_sec = end_sec - start_sec
+    original_frame_length = video_sec * fps
+
+    step = max(original_frame_length // frame_load_cap, 1)
+
+    start_frame = fps * start_sec
+    end_frame = fps * end_sec
+
+    frames_added = 0
+    images = []
+
+    curr_frame = start_frame
+
+    print(f"start_frame: {start_frame}\nend_frame: {end_frame}\nstep: {step}\n")
+
+    while True:
+        # Set the frame position
+        video_cap.set(cv2.CAP_PROP_POS_FRAMES, curr_frame)
+
+        ret, frame = video_cap.read()
+        if not ret:
+            break
+
+        # Append the frame to the frames list
+        image = frame_to_tensor(frame)
+        images.append(image)
+        frames_added += 1
+
+        # if cap exists and we've reached it, stop processing frames
+        if frame_load_cap > 0 and frames_added >= frame_load_cap:
+            break
+        if curr_frame >= end_frame:
+            break
+
+        curr_frame += step
+    
+    #Setup lambda for lazy audio capture
+    #audio = lambda : get_audio(video, skip_first_frames * target_frame_time, frame_load_cap*target_frame_time)
+    return (images, frames_added, fps // step, width, height)
 
 def load_video_cv(
         video: str, 
@@ -127,10 +177,13 @@ def load_video_cv(
     images = torch.cat(images, dim=0)
     if force_size != "Disabled":
         new_size = target_size(width, height, force_size)
+
         if new_size[0] != width or new_size[1] != height:
             s = images.movedim(-1,1)
             s = common_upscale(s, new_size[0], new_size[1], "lanczos", "center")
             images = s.movedim(1,-1)
+            width, height = new_size
+
     # TODO: raise an error maybe if no frames were loaded?
 
     #Setup lambda for lazy audio capture
@@ -155,12 +208,14 @@ def get_audio(file, start_time=0, duration=0):
     return subprocess.run(args + ["-f", "wav", "-"],
                           stdout=subprocess.PIPE, check=True).stdout
 
+
 def download_youtube_video(
         youtube_url: str,
         start_sec: float,
         end_sec: float,
         frame_load_cap: int = 50,
         output_dir = None,
+        force_size = "Disabled",
         **kwargs,
     ):
     if not output_dir:
@@ -174,58 +229,30 @@ def download_youtube_video(
         stream = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
 
         video_path = stream.download(output_dir)
+
+
         cap = cv2.VideoCapture(video_path)
-        fps = int(cap.get(cv2.CAP_PROP_FPS))
-        width, height = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
-        # Calculate the total number of frames in the specified time range
-        video_sec = end_sec - start_sec
-        original_frame_length = video_sec * fps
-
-        step = max(original_frame_length // frame_load_cap, 1)
-
-        start_frame = fps * start_sec
-        end_frame = fps * end_sec
-
-        frames_added = 0
-        images = []
-
-        curr_frame = start_frame
-
-        print(f"start_frame: {start_frame}\nend_frame: {end_frame}\nstep: {step}\n")
-
-        while True:
-            # Set the frame position
-            cap.set(cv2.CAP_PROP_POS_FRAMES, curr_frame)
-
-            ret, frame = cap.read()
-            if not ret:
-                break
-
-            # Append the frame to the frames list
-            image = frame_to_tensor(frame)
-            images.append(image)
-            frames_added += 1
-
-            # if cap exists and we've reached it, stop processing frames
-            if frame_load_cap > 0 and frames_added >= frame_load_cap:
-                break
-            if curr_frame >= end_frame:
-                break
-
-            curr_frame += step
+        images, frames_added, fps, width, height = process_video_cap(cap, start_sec, end_sec, frame_load_cap)
+    
     finally:
-        
         # Release the video capture object
         cap.release()
     
     if len(images) == 0:
         raise RuntimeError("No frames generated")
     images = torch.cat(images, dim=0)
-    
+
+    if force_size != "Disabled":
+        new_size = target_size(width, height, force_size)        
+    if new_size[0] != width or new_size[1] != height:
+        s = images.movedim(-1,1)
+        s = common_upscale(s, new_size[0], new_size[1], "lanczos", "center")
+        images = s.movedim(1,-1)
+        width, height = new_size
+
     #Setup lambda for lazy audio capture
     #audio = lambda : get_audio(video, skip_first_frames * target_frame_time, frame_load_cap*target_frame_time)
-    return (images, frames_added, fps // step, width, height)
+    return (images, frames_added, fps, width, height)
 
 
 class YouTubeVideoLoader:
