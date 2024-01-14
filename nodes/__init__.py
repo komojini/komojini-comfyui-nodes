@@ -1,7 +1,8 @@
-from .youtube_nodes import YouTubeVideoLoader
+from .video_loaders import YouTubeVideoLoader, UltimateVideoLoader
 from .image_merger import ImageMerger
 
 __all__ = [
     "YouTubeVideoLoader",
     "ImageMerger",
+    "UltimateVideoLoader",
 ]
