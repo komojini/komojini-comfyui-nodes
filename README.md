@@ -1,21 +1,30 @@
 # komojini-comfyui-nodes
 Custom ComfyUI Nodes for video generation
 
-## Nodes
+## Video Loading Nodes
 ### Ultimate Video Loader
 Able to load video from several sources (filepath, YouTube, etc.)<br>
+
+<img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/ac899be3-b7bd-4d3b-8d9c-796d9dc1a120"><br>
+
+Common Args:
+- start_sec: float
+- end_sec: float
+- max_fps: int (-1 for disable)
+- force_size
+- frame_load_cap: max frames to be returned, the fps will be changed automatically by durations and frame count. This will not increase the frame count of the original video.
+<br>
+The video downloaded from YouTube will be saved in "path-to-comfyui/output/youtube/" (will be changed later)
 
 ### YouTube Video Loader
 <img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/cc99ea6f-e9ac-462d-abb9-ee6b11c0f381"><br>
 Able to load and extract video from youtube.
 
 Args:
-- youtube_url
-- start_sec
-- end_sec
-- frame_load_cap: max frames to be returned, the fps will be changed automatically by durations and frame count. This will not increase the frame count of the original video.
-- output_dir (optional)
+- Common Args Above...
+- output_dir (optional): defaults to "path-to-comfyui/output/youtube/"
 
+## Others
 ### Image Merger
 Able to merge 2 images or videos side by side.
 Useful to see the results of img2img or vid2vid.
