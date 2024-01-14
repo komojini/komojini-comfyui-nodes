@@ -33,8 +33,8 @@ class YouTubeVideoLoader:
         return {
             "required": {
                 "youtube_url": ("STRING", {"default": ""}),
-                "start_sec": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
-                "end_sec": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),
+                "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
+                "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
                 "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
             },
             "optional": {
@@ -50,8 +50,8 @@ class YouTubeVideoLoader:
     def load_video(
             self,
             youtube_url: str,
-            start_sec: int,
-            end_sec: int,
+            start_sec: float,
+            end_sec: float,
             frame_load_cap: int = 50,
             output_dir = None,
             **kwargs,
