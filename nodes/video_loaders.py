@@ -22,17 +22,18 @@ YOUTUBE_REQUIRED_INPUTS = {
                 "youtube_url": ("STRING", {"default": "youtube/url/here"}),
                 "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
                 "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
+                "max_fps": ("INT", {"default": -1, "min": -1, "max": 30, "step": 1}),
                 "force_size": (["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512"],),
                 "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
             }
 
 FILEPATH_REQUIRED_INPUTS = {
                 "video": ("STRING", {"default": "X://insert/path/here.mp4"}),
-                "force_rate": ("INT", {"default": 0, "min": 0, "max": 24, "step": 1}),
+                "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
+                "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
+                "max_fps": ("INT", {"default": -1, "min": -1, "max": 30, "step": 1}),
                 "force_size": (["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512"],),
-                "frame_load_cap": ("INT", {"default": 0, "min": 0, "step": 1}),
-                "skip_first_frames": ("INT", {"default": 0, "min": 0, "step": 1}),
-                "select_every_nth": ("INT", {"default": 1, "min": 1, "step": 1}),
+                "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
             }
 
 
@@ -69,6 +70,7 @@ def process_video_cap(
         start_sec,
         end_sec,
         frame_load_cap,
+        max_fps = None,
     ):
     fps = int(video_cap.get(cv2.CAP_PROP_FPS))
     width, height = int(video_cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -78,6 +80,14 @@ def process_video_cap(
     original_frame_length = video_sec * fps
 
     step = max(original_frame_length // frame_load_cap, 1)
+    new_fps = fps // step
+
+    if max_fps and max_fps < new_fps:
+        if (step * new_fps) % new_fps != 0:
+            print(f"Warning | new_fps: {new_fps}, max_fps: {max_fps}, modified step: int({step / max_fps * new_fps})")
+        step = int(step / max_fps * new_fps)
+        new_fps = max_fps
+        
 
     start_frame = fps * start_sec
     end_frame = fps * end_sec
@@ -91,7 +101,9 @@ def process_video_cap(
 
     while True:
         # Set the frame position
-        video_cap.set(cv2.CAP_PROP_POS_FRAMES, curr_frame)
+        int_curr_frame = int(curr_frame)
+
+        video_cap.set(cv2.CAP_PROP_POS_FRAMES, int_curr_frame)
 
         ret, frame = video_cap.read()
         if not ret:
@@ -112,64 +124,25 @@ def process_video_cap(
     
     #Setup lambda for lazy audio capture
     #audio = lambda : get_audio(video, skip_first_frames * target_frame_time, frame_load_cap*target_frame_time)
-    return (images, frames_added, fps // step, width, height)
+    return (images, frames_added, new_fps, width, height)
 
 def load_video_cv(
         video: str, 
-        force_rate: int, 
-        force_size: str, 
-        frame_load_cap: int, 
-        skip_first_frames: int, 
-        select_every_nth: int,
+        start_sec: float,
+        end_sec: float,
+        frame_load_cap: int = 50,
+        output_dir = None,
+        max_fps: int = -1,
+        force_size = "Disabled",
         **kwargs,
-    ) -> Tuple[torch.Tensor, int, int, int, int, bytes]:
+    ) -> Tuple[torch.Tensor, int, int, int, int]:
 
     try:
         video_cap = cv2.VideoCapture(video)
         if not video_cap.isOpened():
             raise ValueError(f"{video} could not be loaded with cv.")
-        # set video_cap to look at start_index frame
-        images = []
-        total_frame_count = 0
-        total_frames_evaluated = -1
-        frames_added = 0
-        base_frame_time = 1/video_cap.get(cv2.CAP_PROP_FPS)
-        width = video_cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        height = video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        fps = int(video_cap.get(cv2.CAP_PROP_FPS))
-
-        if force_rate == 0:
-            target_frame_time = base_frame_time
-        else:
-            target_frame_time = 1/force_rate
-        time_offset=target_frame_time - base_frame_time
-        while video_cap.isOpened():
-            if time_offset < target_frame_time:
-                is_returned, frame = video_cap.read()
-                # if didn't return frame, video has ended
-                if not is_returned:
-                    break
-                time_offset += base_frame_time
-            if time_offset < target_frame_time:
-                continue
-            time_offset -= target_frame_time
-            # if not at start_index, skip doing anything with frame
-            total_frame_count += 1
-            if total_frame_count <= skip_first_frames:
-                continue
-            else:
-                total_frames_evaluated += 1
-
-            # if should not be selected, skip doing anything with frame
-            if total_frames_evaluated%select_every_nth != 0:
-                continue
-
-            image = frame_to_tensor(frame)
-            images.append(image)
-            frames_added += 1
-            # if cap exists and we've reached it, stop processing frames
-            if frame_load_cap > 0 and frames_added >= frame_load_cap:
-                break
+        images, frames_added, fps, width, height = process_video_cap(video_cap, start_sec, end_sec, frame_load_cap, max_fps)
+    
     finally:
         video_cap.release()
     if len(images) == 0:
@@ -186,11 +159,11 @@ def load_video_cv(
 
     # TODO: raise an error maybe if no frames were loaded?
 
-    #Setup lambda for lazy audio capture
-    audio = lambda : get_audio(video, skip_first_frames * target_frame_time,
-                               frame_load_cap*target_frame_time)
+    # Setup lambda for lazy audio capture
+    # audio = lambda : get_audio(video, skip_first_frames * target_frame_time,
+    #                            frame_load_cap*target_frame_time)
     
-    return (images, frames_added, fps, width, height, lazy_eval(audio))
+    return (images, frames_added, fps, width, height,)
 
 
 def is_gif(filename: Path | str) -> bool:
@@ -216,6 +189,7 @@ def download_youtube_video(
         frame_load_cap: int = 50,
         output_dir = None,
         force_size = "Disabled",
+        max_fps = None,
         **kwargs,
     ):
     if not output_dir:
@@ -232,7 +206,7 @@ def download_youtube_video(
 
 
         cap = cv2.VideoCapture(video_path)
-        images, frames_added, fps, width, height = process_video_cap(cap, start_sec, end_sec, frame_load_cap)
+        images, frames_added, fps, width, height = process_video_cap(cap, start_sec, end_sec, frame_load_cap, max_fps)
     
     finally:
         # Release the video capture object
@@ -285,15 +259,13 @@ class UltimateVideoLoader:
         inputs = {
             "required": {
                 "source": (cls.source,),
+                "video": ("STRING", {"default": "X://insert/path/here.mp4"}),
+                "youtube_url": ("STRING", {"default": "youtube/url/here"}),
             }
         }
 
         inputs["required"].update(YOUTUBE_REQUIRED_INPUTS)
         inputs["required"].update(FILEPATH_REQUIRED_INPUTS)
-
-        # Just for visual purpose
-        del inputs["required"]["frame_load_cap"]
-        inputs["required"].update({"frame_load_cap": ("INT", {"default": 0, "min": 0, "max": 10000, "step": 1}),})
 
         return inputs
 
@@ -307,7 +279,7 @@ class UltimateVideoLoader:
         if source == "YouTube":
             images, frames_count, fps, width, height = download_youtube_video(**kwargs)
         elif source == "filepath":
-            images, frames_count, fps, width, height, audio = load_video_cv(**kwargs)
+            images, frames_count, fps, width, height = load_video_cv(**kwargs)
         
         return (images, frames_count, fps, width, height,)
 

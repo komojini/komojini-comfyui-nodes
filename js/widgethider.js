@@ -61,8 +61,8 @@ function handleInputModeWidgetsVisibility(node, inputModeValue) {
 
     const nodeVisibilityMap = {
         "UltimateVideoLoader": {
-            "filepath": ["youtube_url", "start_sec", "end_sec"],
-            "YouTube": ["video", "force_rate", "skip_first_frames", "select_every_nth"],
+            "filepath": ["youtube_url",],
+            "YouTube": ["video",],
         },
     };
 
@@ -105,8 +105,8 @@ function widgetLogic(node, widget) {
 
 function handleUltimateVideoLoaderVisibility(node, source) {
     const baseNamesMap = {
-        "YouTube": ["youtube_url", "start_sec", "end_sec", "force_size", "frame_load_cap"],
-        "filepath": ["video", "force_rate",  "skip_first_frames", "select_every_nth", "force_size", "frame_load_cap"],
+        "YouTube": ["youtube_url", "start_sec", "end_sec", "force_size", "max_fps", "frame_load_cap"],
+        "filepath": ["video", "start_sec", "end_sec", "force_size", "max_fps", "frame_load_cap"],
     };
 
     for (var key in baseNamesMap) {
