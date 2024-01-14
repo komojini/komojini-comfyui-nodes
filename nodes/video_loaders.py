@@ -26,14 +26,6 @@ COMMON_REQUIRED_INPUTS = {
                 "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
             }
 
-YOUTUBE_REQUIRED_INPUTS = {
-                "youtube_url": ("STRING", {"default": "youtube/url/here"}),
-            }
-
-FILEPATH_REQUIRED_INPUTS = {
-                "video": ("STRING", {"default": "X://insert/path/here.mp4"}),
-            }
-
 
 def target_size(width, height, force_size) -> tuple[int, int]:
     if force_size != "Disabled":
@@ -239,7 +231,7 @@ class YouTubeVideoLoader:
     def INPUT_TYPES(s):
 
         inputs = {
-            "required": YOUTUBE_REQUIRED_INPUTS,
+            "required": {"youtube_url": ("STRING", {"default": "youtube/url/here"}),},
             "optional": {
                 "output_dir": ("STRING", {"default": ""}),
             }
@@ -267,11 +259,11 @@ class UltimateVideoLoader:
         inputs = {
             "required": {
                 "source": (cls.source,),
+                "youtube_url": ("STRING", {"default": "youtube/url/here"}),
+                "video": ("STRING", {"default": "X://insert/path/here.mp4"}),
             }
         }
 
-        inputs["required"].update(YOUTUBE_REQUIRED_INPUTS)
-        inputs["required"].update(FILEPATH_REQUIRED_INPUTS)
         inputs["required"].update(COMMON_REQUIRED_INPUTS)
 
         return inputs
