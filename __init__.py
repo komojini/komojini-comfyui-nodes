@@ -1,6 +1,9 @@
 
-from .youtube_nodes import YouTubeVideoLoader
-from .image_merger import ImageMerger
+from .nodes import *
+# import sys
+# import os
+
+# sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "comfy"))
 
 
 NODE_CLASS_MAPPINGS = {
@@ -14,4 +17,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 }
 
 
-__all__ = [NODE_CLASS_MAPPINGS, NODE_DISPLAY_NAME_MAPPINGS]
+__all__ = [
+    "NODE_CLASS_MAPPINGS", 
+    "NODE_DISPLAY_NAME_MAPPINGS",
+]

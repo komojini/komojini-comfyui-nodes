@@ -9,8 +9,6 @@ import subprocess
 import folder_paths
 
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), "comfy"))
-
 video_extensions = ['webm', 'mp4', 'mkv', 'gif']
 
 def get_audio(file, start_time=0, duration=0):
