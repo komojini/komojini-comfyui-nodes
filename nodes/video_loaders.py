@@ -234,16 +234,19 @@ class YouTubeVideoLoader:
     @classmethod
     def INPUT_TYPES(s):
 
-        return {
+        inputs = {
             "required": YOUTUBE_REQUIRED_INPUTS,
             "optional": {
                 "output_dir": ("STRING", {"default": ""}),
             }
         }
+        inputs["required"].update(COMMON_REQUIRED_INPUTS)
+
+        return inputs
     
     FUNCTION = "load_video"
     RETURN_TYPES = ("IMAGE", "INT", "INT", "INT", "INT",)
-    RETURN_NAMES = ("IMAGE", "frame_count", "fps", "width", "height",)
+    RETURN_NAMES = ("images", "frame_count", "fps", "width", "height",)
     CATEGORY = "komojini/Video"
     
     def load_video(self, **kwargs):
