@@ -4,14 +4,6 @@ import { findWidgetByName, doesInputWithNameExist } from "./utils.js";
 let origProps = {};
 let initialized = false;
 
-// const findWidgetByName = (node, name) => {
-//     return node.widgets ? node.widgets.find((w) => w.name === name) : null;
-// };
-
-// const doesInputWithNameExist = (node, name) => {
-//     return node.inputs ? node.inputs.some((input) => input.name === name) : false;
-// };
-
 const HIDDEN_TAG = "komojinihide";
 
 const WIDGET_HEIGHT = 24;
