@@ -244,11 +244,11 @@ def download_youtube_video(
 
     if force_size != "Disabled":
         new_size = target_size(width, height, force_size)        
-    if new_size[0] != width or new_size[1] != height:
-        s = images.movedim(-1,1)
-        s = common_upscale(s, new_size[0], new_size[1], "lanczos", "center")
-        images = s.movedim(1,-1)
-        width, height = new_size
+        if new_size[0] != width or new_size[1] != height:
+            s = images.movedim(-1,1)
+            s = common_upscale(s, new_size[0], new_size[1], "lanczos", "center")
+            images = s.movedim(1,-1)
+            width, height = new_size
 
     #Setup lambda for lazy audio capture
     #audio = lambda : get_audio(video, skip_first_frames * target_frame_time, frame_load_cap*target_frame_time)
