@@ -5,8 +5,8 @@ Custom ComfyUI Nodes for video generation
 ### Ultimate Video Loader
 Able to load video from several sources (filepath, YouTube, etc.)<br>
 3 source types available: 
-- file path,
-- file upload,
+- file path
+- file upload
 - youtube <br><br>
 ![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/a69344f6-eb5e-4335-a44e-84125a7a517b)
 
