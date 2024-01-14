@@ -17,15 +17,16 @@ from .utils import hash_path, validate_path, lazy_eval
 
 video_extensions = ['webm', 'mp4', 'mkv', 'gif']
 
+
 YOUTUBE_REQUIRED_INPUTS = {
-                "youtube_url": ("STRING", {"default": ""}),
+                "youtube_url": ("STRING", {"default": "youtube/url/here"}),
                 "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
                 "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
                 "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
             }
 
 FILEPATH_REQUIRED_INPUTS = {
-                "video": ("STRING", {"default": "X://insert/path/here.mp4", "vhs_path_extensions": video_extensions}),
+                "video": ("STRING", {"default": "X://insert/path/here.mp4"}),
                 "force_rate": ("INT", {"default": 0, "min": 0, "max": 24, "step": 1}),
                 "force_size": (["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512"],),
                 "frame_load_cap": ("INT", {"default": 0, "min": 0, "step": 1}),
@@ -51,6 +52,16 @@ def target_size(width, height, force_size) -> tuple[int, int]:
             width = int(force_size[0])
             height = int(force_size[1])
     return (width, height)
+
+
+def frame_to_tensor(frame) -> torch.Tensor:
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    # convert frame to comfyui's expected format (taken from comfy's load image code)
+    image = Image.fromarray(frame)
+    image = ImageOps.exif_transpose(image)
+    image = np.array(image, dtype=np.float32) / 255.0
+    image = torch.from_numpy(image)[None,] 
+    return image
 
 
 def load_video_cv(
@@ -103,14 +114,7 @@ def load_video_cv(
             if total_frames_evaluated%select_every_nth != 0:
                 continue
 
-            # opencv loads images in BGR format (yuck), so need to convert to RGB for ComfyUI use
-            # follow up: can videos ever have an alpha channel?
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            # convert frame to comfyui's expected format (taken from comfy's load image code)
-            image = Image.fromarray(frame)
-            image = ImageOps.exif_transpose(image)
-            image = np.array(image, dtype=np.float32) / 255.0
-            image = torch.from_numpy(image)[None,]
+            image = frame_to_tensor(frame)
             images.append(image)
             frames_added += 1
             # if cap exists and we've reached it, stop processing frames
@@ -138,6 +142,7 @@ def load_video_cv(
 
 def is_gif(filename: Path | str) -> bool:
     return str(filename).endswith("gif")
+
 
 def get_audio(file, start_time=0, duration=0):
     # TODO: set ffmpeg_path
@@ -198,14 +203,10 @@ def download_youtube_video(
                 break
 
             # Append the frame to the frames list
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-            image = Image.fromarray(frame)
-            image = ImageOps.exif_transpose(image)
-            image = np.array(image, dtype=np.float32) / 255.0
-            image = torch.from_numpy(image)[None,]
+            image = frame_to_tensor(frame)
             images.append(image)
             frames_added += 1
+
             # if cap exists and we've reached it, stop processing frames
             if frame_load_cap > 0 and frames_added >= frame_load_cap:
                 break
