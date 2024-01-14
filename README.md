@@ -5,7 +5,7 @@ Custom ComfyUI Nodes for video generation
 ### Ultimate Video Loader
 Able to load video from several sources (filepath, YouTube, etc.)<br>
 
-<img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/ac899be3-b7bd-4d3b-8d9c-796d9dc1a120"><br>
+<img width="80%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/ac899be3-b7bd-4d3b-8d9c-796d9dc1a120"><br>
 
 Common Args:
 - start_sec: float
@@ -17,7 +17,7 @@ Common Args:
 The video downloaded from YouTube will be saved in "path-to-comfyui/output/youtube/" (will be changed later)
 
 ### YouTube Video Loader
-<img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/cc99ea6f-e9ac-462d-abb9-ee6b11c0f381"><br>
+<img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/65142191-f7e9-4341-ba47-4226b31451fd"><br>
 Able to load and extract video from youtube.
 
 Args:
