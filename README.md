@@ -12,7 +12,7 @@ Common Args:
 - end_sec: float
 - max_fps: int (-1 for disable)
 - force_size
-- frame_load_cap: max frames to be returned, the fps will be changed automatically by durations and frame count. This will not increase the frame count of the original video.
+- frame_load_cap: max frames to be returned, the fps will be automatically changed by the duration and frame count. This will not increase the frame count of the original video (will not increase original fps).
 <br>
 The video downloaded from YouTube will be saved in "path-to-comfyui/output/youtube/" (will be changed later)
 
