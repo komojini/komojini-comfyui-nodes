@@ -19,3 +19,4 @@ e.g.
 - (40%, 0);(70%, 100%) ->
 <img width="80%" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/585b46d7-2a73-4cc2-be29-68d02db0fe1c"/>
 
+<img width="80%" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/9542bad6-0fbf-4c38-a841-9ea7d772629d"/>
