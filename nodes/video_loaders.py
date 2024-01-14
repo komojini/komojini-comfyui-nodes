@@ -123,6 +123,7 @@ def process_video_cap(
     #audio = lambda : get_audio(video, skip_first_frames * target_frame_time, frame_load_cap*target_frame_time)
     return (images, frames_added, new_fps, width, height)
 
+
 def load_video_cv(
         video: str, 
         start_sec: float,
