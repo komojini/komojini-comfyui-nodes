@@ -1,6 +1,6 @@
 {
-  "last_node_id": 15,
-  "last_link_id": 19,
+  "last_node_id": 17,
+  "last_link_id": 21,
   "nodes": [
     {
       "id": 12,
@@ -41,54 +41,6 @@
       ],
       "properties": {
         "Node name for S&R": "VAEEncode",
-        "ttNbgOverride": {
-          "color": "#222",
-          "bgcolor": "#000",
-          "groupcolor": "#444"
-        }
-      },
-      "color": "#222",
-      "bgcolor": "#000"
-    },
-    {
-      "id": 14,
-      "type": "VAEDecode",
-      "pos": [
-        2659.964871142265,
-        697.0716394537167
-      ],
-      "size": {
-        "0": 210,
-        "1": 46
-      },
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 15
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": 16
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            18
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VAEDecode",
         "ttNbgOverride": {
           "color": "#222",
           "bgcolor": "#000",
@@ -166,7 +118,7 @@
         "1": 200
       },
       "flags": {},
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
@@ -212,7 +164,7 @@
         "1": 82
       },
       "flags": {},
-      "order": 4,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
@@ -248,121 +200,6 @@
       "bgcolor": "#000"
     },
     {
-      "id": 13,
-      "type": "KSampler",
-      "pos": [
-        2259,
-        683
-      ],
-      "size": {
-        "0": 315,
-        "1": 262
-      },
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 14
-        },
-        {
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 11
-        },
-        {
-          "name": "negative",
-          "type": "CONDITIONING",
-          "link": 13
-        },
-        {
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 12
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            15
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "KSampler",
-        "ttNbgOverride": {
-          "color": "#222",
-          "bgcolor": "#000",
-          "groupcolor": "#444"
-        }
-      },
-      "widgets_values": [
-        1117083202833006,
-        "randomize",
-        30,
-        8,
-        "euler",
-        "normal",
-        1
-      ],
-      "color": "#222",
-      "bgcolor": "#000"
-    },
-    {
-      "id": 3,
-      "type": "LoadImage",
-      "pos": [
-        934,
-        425
-      ],
-      "size": [
-        411.8054571934417,
-        427.59284258236266
-      ],
-      "flags": {},
-      "order": 0,
-      "mode": 0,
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            3,
-            9,
-            19
-          ],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "MASK",
-          "type": "MASK",
-          "links": null,
-          "shape": 3
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "LoadImage",
-        "ttNbgOverride": {
-          "color": "#222",
-          "bgcolor": "#000",
-          "groupcolor": "#444"
-        }
-      },
-      "widgets_values": [
-        "1111example (1).png",
-        "image"
-      ],
-      "color": "#222",
-      "bgcolor": "#000"
-    },
-    {
       "id": 9,
       "type": "CheckpointLoaderSimple",
       "pos": [
@@ -374,7 +211,7 @@
         "1": 98
       },
       "flags": {},
-      "order": 1,
+      "order": 0,
       "mode": 0,
       "outputs": [
         {
@@ -433,7 +270,7 @@
         "1": 58
       },
       "flags": {},
-      "order": 2,
+      "order": 1,
       "mode": 0,
       "outputs": [
         {
@@ -461,29 +298,6 @@
       "bgcolor": "#000"
     },
     {
-      "id": 15,
-      "type": "Note",
-      "pos": [
-        3309,
-        514
-      ],
-      "size": [
-        433.918149413651,
-        135.54781335748135
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "properties": {
-        "text": ""
-      },
-      "widgets_values": [
-        "(60%, 0);(50%, 100%) will generate line of\n\npoint 1: (60%, 0) -> (width * 0.6, 0)\npoint 2: (45%, 100%) -> (width * 0.5, height * 1.0)\n\nThe dividing line will be the connection of point 1 and point 2."
-      ],
-      "color": "#432",
-      "bgcolor": "#653"
-    },
-    {
       "id": 7,
       "type": "CLIPTextEncode",
       "pos": [
@@ -495,7 +309,7 @@
         "1": 200
       },
       "flags": {},
-      "order": 5,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -524,21 +338,88 @@
         }
       },
       "widgets_values": [
-        "A very beautiful girl in cypercity, masterpiece, 4k, dark background, distopia"
+        "A beautiful girl in city, night, masterpiece, 4k, dark background"
       ],
       "color": "#222",
       "bgcolor": "#000"
     },
     {
-      "id": 2,
+      "id": 13,
+      "type": "KSampler",
+      "pos": [
+        1887,
+        999
+      ],
+      "size": {
+        "0": 315,
+        "1": 262
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 14
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 11
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 13
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            15
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        1056212845093504,
+        "randomize",
+        30,
+        8,
+        "euler",
+        "normal",
+        1
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 17,
       "type": "PreviewImage",
       "pos": [
-        2952,
-        648
+        2535,
+        1095
       ],
       "size": [
-        326.47654224106554,
-        340.0908034870414
+        405.241493286132,
+        388.9299367675776
       ],
       "flags": {},
       "order": 12,
@@ -547,7 +428,7 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 1
+          "link": 21
         }
       ],
       "properties": {
@@ -562,11 +443,68 @@
       "bgcolor": "#000"
     },
     {
+      "id": 16,
+      "type": "SaveImage",
+      "pos": [
+        2985,
+        918
+      ],
+      "size": [
+        535.2378607177716,
+        570.2888000488274
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 20
+        }
+      ],
+      "properties": {
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "ComfyUI"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 15,
+      "type": "Note",
+      "pos": [
+        2982,
+        635
+      ],
+      "size": [
+        541.3411071777327,
+        99.29258911132774
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "(60%, 0);(50%, 100%) will generate line of\n\npoint 1: (50%, 0) -> (width * 0.5, 0)\npoint 2: (60%, 100%) -> (width * 0.6, height * 1.0)\n\nThe dividing line will be the connection of point 1 and point 2."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
       "id": 1,
       "type": "ImageMerger",
       "pos": [
-        2957,
-        492
+        2986,
+        791
       ],
       "size": {
         "0": 315,
@@ -593,7 +531,7 @@
           "name": "images",
           "type": "IMAGE",
           "links": [
-            1
+            20
           ],
           "shape": 3,
           "slot_index": 0
@@ -614,22 +552,111 @@
         }
       },
       "widgets_values": [
-        "(60%, 0);(45%, 100%)",
-        0
+        "(50%, 0);(60%, 100%)",
+        2
       ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 3,
+      "type": "LoadImage",
+      "pos": [
+        2537,
+        610
+      ],
+      "size": {
+        "0": 411.8054504394531,
+        "1": 427.59283447265625
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            3,
+            9,
+            19
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "1111example (1).png",
+        "image"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 14,
+      "type": "VAEDecode",
+      "pos": [
+        2123,
+        704
+      ],
+      "size": {
+        "0": 210,
+        "1": 46
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 15
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18,
+            21
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
       "color": "#222",
       "bgcolor": "#000"
     }
   ],
   "links": [
-    [
-      1,
-      1,
-      0,
-      2,
-      0,
-      "IMAGE"
-    ],
     [
       3,
       3,
@@ -755,6 +782,22 @@
       3,
       0,
       1,
+      0,
+      "IMAGE"
+    ],
+    [
+      20,
+      1,
+      0,
+      16,
+      0,
+      "IMAGE"
+    ],
+    [
+      21,
+      14,
+      0,
+      17,
       0,
       "IMAGE"
     ]
