@@ -9,8 +9,8 @@ Able to load video from several sources (filepath, YouTube, etc.)<br>
 
 Common Args:
 - start_sec: float
-- end_sec: float
-- max_fps: int (-1 for disable)
+- end_sec: float (0.0 -> end of the video)
+- max_fps: int (0 or -1 to disable)
 - force_size
 - frame_load_cap: max frames to be returned, the fps will be automatically changed by the duration and frame count. This will not increase the frame count of the original video (will not increase original fps).
 <br>
