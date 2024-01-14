@@ -16,24 +16,22 @@ from .utils import hash_path, validate_path, lazy_eval
 
 
 video_extensions = ['webm', 'mp4', 'mkv', 'gif']
+force_sizes = ["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512"]
 
-
-YOUTUBE_REQUIRED_INPUTS = {
-                "youtube_url": ("STRING", {"default": "youtube/url/here"}),
+COMMON_REQUIRED_INPUTS = {
                 "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
                 "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
                 "max_fps": ("INT", {"default": -1, "min": -1, "max": 30, "step": 1}),
-                "force_size": (["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512"],),
+                "force_size": (force_sizes,),
                 "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
+            }
+
+YOUTUBE_REQUIRED_INPUTS = {
+                "youtube_url": ("STRING", {"default": "youtube/url/here"}),
             }
 
 FILEPATH_REQUIRED_INPUTS = {
                 "video": ("STRING", {"default": "X://insert/path/here.mp4"}),
-                "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
-                "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
-                "max_fps": ("INT", {"default": -1, "min": -1, "max": 30, "step": 1}),
-                "force_size": (["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512"],),
-                "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
             }
 
 
@@ -262,13 +260,12 @@ class UltimateVideoLoader:
         inputs = {
             "required": {
                 "source": (cls.source,),
-                "video": ("STRING", {"default": "X://insert/path/here.mp4"}),
-                "youtube_url": ("STRING", {"default": "youtube/url/here"}),
             }
         }
 
         inputs["required"].update(YOUTUBE_REQUIRED_INPUTS)
         inputs["required"].update(FILEPATH_REQUIRED_INPUTS)
+        inputs["required"].update(COMMON_REQUIRED_INPUTS)
 
         return inputs
 
