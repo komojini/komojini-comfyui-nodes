@@ -12,7 +12,8 @@ import subprocess
 import folder_paths
 from comfy.utils import common_upscale
 
-from .utils import hash_path, validate_path, lazy_eval
+from .logger import logger
+from .utils import calculate_file_hash, validate_path, lazy_eval, hash_path
 
 
 video_extensions = ['webm', 'mp4', 'mkv', 'gif']
@@ -81,7 +82,7 @@ def process_video_cap(
 
     if max_fps and 0 < max_fps < new_fps:
         if (step * new_fps) % new_fps != 0:
-            print(f"Warning | new_fps: {new_fps}, max_fps: {max_fps}, modified step: int({step / max_fps * new_fps})")
+            logger.warning(f"Warning | new_fps: {new_fps}, max_fps: {max_fps}, modified step: int({step / max_fps * new_fps})")
         step = int(step / max_fps * new_fps)
         new_fps = max_fps
         
@@ -94,7 +95,7 @@ def process_video_cap(
 
     curr_frame = start_frame
 
-    print(f"start_frame: {start_frame}\nend_frame: {end_frame}\nstep: {step}\n")
+    logger.info(f"start_frame: {start_frame}\nend_frame: {end_frame}\nstep: {step}\n")
 
     while True:
         # Set the frame position
@@ -253,15 +254,25 @@ class YouTubeVideoLoader:
 class UltimateVideoLoader:
     source = [
         "filepath",
+        "fileupload",
         "YouTube",
     ]
     @classmethod
     def INPUT_TYPES(cls):
+        input_dir = folder_paths.get_input_directory()
+        files = []
+        for f in os.listdir(input_dir):
+            if os.path.isfile(os.path.join(input_dir, f)):
+                file_parts = f.split('.')
+                if len(file_parts) > 1 and (file_parts[-1] in video_extensions):
+                    files.append(f)
+        
         inputs = {
             "required": {
                 "source": (cls.source,),
                 "youtube_url": ("STRING", {"default": "youtube/url/here"}),
-                "video": ("STRING", {"default": "X://insert/path/here.mp4"}),
+                "video": ("STRING", {"default": "X://insert/path/here.mp4", "path_extensions": video_extensions}),
+                "upload": (sorted(files),),
             }
         }
 
@@ -280,13 +291,27 @@ class UltimateVideoLoader:
             images, frames_count, fps, width, height = download_youtube_video(**kwargs)
         elif source == "filepath":
             images, frames_count, fps, width, height = load_video_cv(**kwargs)
-        
+        elif source == "fileupload":
+            kwargs['video'] = folder_paths.get_annotated_filepath(kwargs['upload'].strip("\""))
+            images, frames_count, fps, width, height = load_video_cv(**kwargs)
+
         return (images, frames_count, fps, width, height,)
 
     @classmethod
-    def IS_CHANGED(s, video, **kwargs):
-        return hash_path(video)
-    
+    def IS_CHANGED(s, upload, **kwargs):
+        logger.debug(f"is_changed | source: {source}")
+
+        source = kwargs.get("source")
+        if source == "filepath":
+            video = kwargs.get("video")
+            return hash_path(video)
+        elif source == "fileupload":
+            image_path = folder_paths.get_annotated_filepath(upload)
+            return calculate_file_hash(image_path)
+        else:
+            youtube_url = kwargs.get("youtube_url")
+            return hash_path(youtube_url)
+        
     # @classmethod
     # def VALIDATE_INPUTS(s, video, force_size, **kwargs):
     #     return validate_path(video, allow_none=True)

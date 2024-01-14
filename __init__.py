@@ -1,5 +1,7 @@
 
 from .nodes import *
+import folder_paths
+from .server import server
 
 WEB_DIRECTORY = "js"
 

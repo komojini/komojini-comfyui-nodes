@@ -1,17 +1,21 @@
 import { app } from "../../scripts/app.js";
+import { findWidgetByName, doesInputWithNameExist } from "./utils.js";
 
 let origProps = {};
 let initialized = false;
 
-const findWidgetByName = (node, name) => {
-    return node.widgets ? node.widgets.find((w) => w.name === name) : null;
-};
+// const findWidgetByName = (node, name) => {
+//     return node.widgets ? node.widgets.find((w) => w.name === name) : null;
+// };
 
-const doesInputWithNameExist = (node, name) => {
-    return node.inputs ? node.inputs.some((input) => input.name === name) : false;
-};
+// const doesInputWithNameExist = (node, name) => {
+//     return node.inputs ? node.inputs.some((input) => input.name === name) : false;
+// };
 
 const HIDDEN_TAG = "komojinihide";
+
+const WIDGET_HEIGHT = 24;
+
 // Toggle Widget + change size
 function toggleWidget(node, widget, show = false, suffix = "") {
     if (!widget || doesInputWithNameExist(node, widget.name)) return;
@@ -35,7 +39,7 @@ function toggleWidget(node, widget, show = false, suffix = "") {
     node.setSize([node.size[0], newHeight]);
 }
 
-const WIDGET_HEIGHT = 24;
+
 // Use for Multiline Widget Nodes (aka Efficient Loaders)
 function toggleWidget_2(node, widget, show = false, suffix = "") {
     if (!widget || doesInputWithNameExist(node, widget.name)) return;
@@ -61,8 +65,9 @@ function handleInputModeWidgetsVisibility(node, inputModeValue) {
 
     const nodeVisibilityMap = {
         "UltimateVideoLoader": {
-            "filepath": ["youtube_url",],
-            "YouTube": ["video",],
+            "filepath": ["youtube_url", "upload"],
+            "YouTube": ["video", "upload"],
+            "fileupload": ["youtube_url", "video"],
         },
     };
 
@@ -108,6 +113,7 @@ function handleUltimateVideoLoaderVisibility(node, source) {
     const baseNamesMap = {
         "YouTube": ["youtube_url", ...commonWidgets],
         "filepath": ["video", ...commonWidgets],
+        "fileupload": ["fileupload", ...commonWidgets],
     };
 
     for (var key in baseNamesMap) {

@@ -1,0 +1,10 @@
+{
+    "main_pass":
+    [
+        "-n", "-c:v", "prores_ks",
+        "-profile:v","3",
+        "-pix_fmt", "yuv422p10"
+    ],
+    "audio_pass": ["-c:a", "pcm_s16le"],
+    "extension": "mov"
+}
