@@ -19,7 +19,10 @@ Common Args:
 - frame_load_cap: max frames to be returned, the fps will be automatically changed by the duration and frame count. This will not increase the frame count of the original video (will not increase original fps).
 <br>
 The video downloaded from YouTube will be saved in "path-to-comfyui/output/youtube/" (will be changed later)
-
+<br>
+### Ultimate Video Loader (simple)
+Same as above but without preview.
+<br><br>
 ### YouTube Video Loader
 <img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/65142191-f7e9-4341-ba47-4226b31451fd"><br>
 Able to load and extract video from youtube.
