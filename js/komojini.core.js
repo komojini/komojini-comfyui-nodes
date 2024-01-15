@@ -812,7 +812,7 @@ app.registerExtension({
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         console.info("beforeRegisterNodeDef starting... nodeData?.name:", nodeData?.name);
 
-        if(nodeData?.name?.endsWith("Loader")) {
+        if(nodeData?.name?.startsWith("Ultimate")) {
             useKVState(nodeType);
             chainCallback(nodeType.prototype, "onNodeCreated", function () {
                 console.debug("onNodeCreated: ", nodeData?.name, findWidgetByName(this, "source")?.value);
@@ -837,6 +837,7 @@ app.registerExtension({
 
         if (nodeData?.name == "UltimateVideoLoader") {
             console.debug("start adding upload widget", nodeData);
+            
             addUploadWidget(nodeType, nodeData, "upload", "video");
 
             chainCallback(nodeType.prototype, "onNodeCreated", function() {
@@ -917,8 +918,91 @@ app.registerExtension({
                 });
             });
             addLoadVideoCommon(nodeType, nodeData);
+        } else if (nodeData?.name == "UltimateVideoLoader (simple)") {
+            
+            addUploadWidget(nodeType, nodeData, "upload", "video");
+
+            // chainCallback(nodeType.prototype, "onNodeCreated", function() {
+
+            //     const pathWidget = findWidgetByName(this, "upload");
+            //     const sourceWidget = findWidgetByName(this, "source");
+            //     const filePathWidget = findWidgetByName(this, "video");
+            //     const youtubeUrlWidget = findWidgetByName(this, "youtube_url");
+
+            //     // const pathWidget = this.widgets.find((w) => w.name === "video");
+            //     chainCallback(pathWidget, "callback", (value) => {
+            //         if (!value) {
+            //             return;
+            //         }
+            //         let parts = ["input", value];
+            //         let extension_index = parts[1].lastIndexOf(".");
+            //         let extension = parts[1].slice(extension_index+1);
+            //         let format = "video";
+            //         if (["gif", "webp", "avif"].includes(extension)) {
+            //             format = "image";
+            //         }
+            //         format += "/" + extension;
+            //         let params = {filename : parts[1], type : parts[0], format: format};
+            //         this.updateParameters(params, true);
+            //     });
+
+            //     chainCallback(filePathWidget, "callback", (value) => {
+            //         let extension_index = value.lastIndexOf(".");
+            //         let extension = value.slice(extension_index+1);
+            //         let format = "video"
+            //         if (["gif", "webp", "avif"].includes(extension)) {
+            //             format = "image"
+            //         }
+            //         format += "/" + extension;
+            //         let params = {filename : value, type: "path", format: format};
+            //         this.updateParameters(params, true);
+            //     });
+
+            //     chainCallback(youtubeUrlWidget, "callback", (value) => {
+            //         //this.updateParameters();
+            //         let params = {filename: value, type: "youtube", format: "youtube"};
+            //         this.updateParameters(params, true);
+            //     });
+                
+            //     chainCallback(sourceWidget, "callback", (value) => {
+            //         const valueToPathMap = {
+            //             "YouTube": "youtube_url",
+            //             "filepath": "video",
+            //             "fileupload": "upload",
+            //         };
+            //         const name = valueToPathMap[value];
+
+            //         const pathValue = findWidgetByName(this, name)?.value;
+            //         if (!pathValue) {
+            //             console.debug("path not available", value);
+            //             return;
+            //         }
+            //         console.debug("source callback", value, "pathValue", pathValue)
+
+            //         let parts = ["input", pathValue];
+            //         let extension_index = parts[1].lastIndexOf(".");
+            //         let extension = parts[1].slice(extension_index+1);
+            //         let format = "video";
+
+            //         if (["gif", "webp", "avif"].includes(extension)) {
+            //             format = "image";
+            //         }
+            //         format += "/" + extension;
+            //         if (value === "fileupload") {
+            //             var params = {filename : parts[1], type : parts[0], format: format};
+            //         } else if (value === "filepath") {
+            //             var params = {filename : pathValue, type: "path", format: format};
+            //         } else {
+            //             var params = {filename : pathValue, type: "youtube", format: "youtube"};
+            //         }
+            //         console.debug("params updated", params);
+            //         this.updateParameters(params, true);
+            //     });
+            // });
+            // addLoadVideoCommon(nodeType, nodeData);
         }
     },
+    
     async getCustomWidgets() {
         return {
             VHSPATH(node, inputName, inputData) {

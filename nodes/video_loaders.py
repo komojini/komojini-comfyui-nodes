@@ -17,7 +17,7 @@ from .utils import calculate_file_hash, validate_path, lazy_eval, hash_path
 
 
 video_extensions = ['webm', 'mp4', 'mkv', 'gif']
-force_sizes = ["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512"]
+force_sizes = ["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512", "?x768", "768x?"]
 
 COMMON_REQUIRED_INPUTS = {
                 "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),

@@ -61,6 +61,11 @@ function handleInputModeWidgetsVisibility(node, inputModeValue) {
             "YouTube": ["video", "upload"],
             "fileupload": ["youtube_url", "video"],
         },
+        "UltimateVideoLoader (simple)": {
+            "filepath": ["youtube_url", "upload"],
+            "YouTube": ["video", "upload"],
+            "fileupload": ["youtube_url", "video"],
+        },
     };
 
     const inputModeVisibilityMap = nodeVisibilityMap[node.comfyClass];
@@ -87,7 +92,10 @@ function handleInputModeWidgetsVisibility(node, inputModeValue) {
 const nodeWidgetHandlers = {
     "UltimateVideoLoader": {
         "source": handleUltimateVideoLoaderSource,
-    }
+    },
+    "UltimateVideoLoader (simple)": {
+        "source": handleUltimateVideoLoaderSource,
+    },
 };
 
 // In the main function where widgetLogic is called
