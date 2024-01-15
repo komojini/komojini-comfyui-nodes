@@ -20,6 +20,7 @@ Common Args:
 <br>
 The video downloaded from YouTube will be saved in "path-to-comfyui/output/youtube/" (will be changed later)
 <br>
+
 ### Ultimate Video Loader (simple)
 Same as above but without preview.
 <br><br>
