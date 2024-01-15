@@ -253,10 +253,11 @@ class YouTubeVideoLoader:
 
 class UltimateVideoLoader:
     source = [
-        "filepath",
         "fileupload",
+        "filepath",
         "YouTube",
     ]
+    
     @classmethod
     def INPUT_TYPES(cls):
         input_dir = folder_paths.get_input_directory()

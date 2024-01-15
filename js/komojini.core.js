@@ -812,15 +812,17 @@ app.registerExtension({
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         console.info("beforeRegisterNodeDef starting... nodeData?.name:", nodeData?.name);
 
-        if(nodeData?.name?.startsWith("Ultimate")) {
+        if (nodeData?.name?.startsWith("Ultimate")) {
             useKVState(nodeType);
             chainCallback(nodeType.prototype, "onNodeCreated", function () {
                 console.debug("onNodeCreated: ", nodeData?.name, findWidgetByName(this, "source")?.value);
+                
                 let new_widgets = []
                 if (this.widgets) {
                     for (let w of this.widgets) {
                         let input = this.constructor.nodeData.input
-                        let config = input?.required[w.name] ?? input.optional[w.name]
+                        let config = input?.required?.[w.name] ?? input?.optional?.[w.name];
+                        // let config = input?.required[w.name] ?? input.optional[w.name]
                         if (!config) {
                             continue
                         }
