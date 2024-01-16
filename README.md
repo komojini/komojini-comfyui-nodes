@@ -10,7 +10,7 @@ Able to load video from several sources (filepath, YouTube, etc.)<br>
 - youtube
 - empty video
 <br><br>
-![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/a69344f6-eb5e-4335-a44e-84125a7a517b)
+![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/c2c27476-45e8-462f-a714-3150df1bb633)
 
 
 Common Args:
