@@ -20,13 +20,19 @@ video_extensions = ['webm', 'mp4', 'mkv', 'gif']
 force_sizes = ["Disabled", "256x?", "?x256", "256x256", "512x?", "?x512", "512x512", "?x768", "768x?"]
 
 COMMON_REQUIRED_INPUTS = {
-                "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
-                "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
-                "max_fps": ("INT", {"default": -1, "min": -1, "max": 30, "step": 1}),
-                "force_size": (force_sizes,),
-                "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
-            }
+    "start_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
+    "end_sec": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 10000.0, "step": 0.1}),
+    "max_fps": ("INT", {"default": -1, "min": -1, "max": 30, "step": 1}),
+    "force_size": (force_sizes,),
+    "frame_load_cap": ("INT", {"default": 50, "min": 1, "max": 10000, "step": 1}),
+}
 
+EMPTY_VIDEO_INPUTS = {
+    "width": ("INT", {"default": 512, "min": 64, "max": 8192, "step": 64}),
+    "height": ("INT", {"default": 512, "min": 64, "max": 8192, "step": 64}),
+    "frame_count": ("INT", {"default": 1, "min": 1, "max": 4096}),
+    "fps": ("INT", {"default": 10, "min": 1, "max": 1000, "step": 1}),
+}
 
 def target_size(width, height, force_size) -> tuple[int, int]:
     if force_size != "Disabled":
@@ -256,6 +262,7 @@ class UltimateVideoLoader:
         "fileupload",
         "filepath",
         "YouTube",
+        "emptyvideo",
     ]
     
     @classmethod
@@ -278,6 +285,7 @@ class UltimateVideoLoader:
         }
 
         inputs["required"].update(COMMON_REQUIRED_INPUTS)
+        inputs["required"].update(EMPTY_VIDEO_INPUTS)
 
         return inputs
 
@@ -295,7 +303,13 @@ class UltimateVideoLoader:
         elif source == "fileupload":
             kwargs['video'] = folder_paths.get_annotated_filepath(kwargs['upload'].strip("\""))
             images, frames_count, fps, width, height = load_video_cv(**kwargs)
-
+        elif source == "emptyvideo":
+            frames_count = kwargs["frame_count"]
+            width, height = kwargs["width"], kwargs["height"]
+            fps = kwargs["fps"]
+            images = torch.zeros([frames_count, height, width, 3])
+        
+        logger.debug(f"loaded video images.shape: {images.shape}, frames_count: {frames_count}, fpe: {fps}, widthxheight: {width}x{height}")
         return (images, frames_count, fps, width, height,)
 
     @classmethod

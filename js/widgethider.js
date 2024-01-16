@@ -52,21 +52,34 @@ function toggleWidget_2(node, widget, show = false, suffix = "") {
     }
 }
 
+const commonLoaderInputs = ["start_sec", "end_sec", "max_fps", "force_size", "frame_load_cap"];
+const emptyVideoInputs = ["width", "height", "frame_count", "fps"];
+
+function allSourceInputsExept(source_name) {
+    const allSourceInputs = ["video", "upload", "youtube_url"];
+    let sources = [];
+    for (const source of allSourceInputs) {
+        if (source !== source_name) {
+            sources.push(source);
+        }
+    }
+    return sources;
+}
+
 // New function to handle widget visibility based on input_mode
 function handleInputModeWidgetsVisibility(node, inputModeValue) {
+    const videoLoaderInputs = ["video", "youtube_url", "upload", ...commonLoaderInputs];
 
-    const nodeVisibilityMap = {
+    let nodeVisibilityMap = {
         "UltimateVideoLoader": {
-            "filepath": ["youtube_url", "upload"],
-            "YouTube": ["video", "upload"],
-            "fileupload": ["youtube_url", "video"],
-        },
-        "UltimateVideoLoader (simple)": {
-            "filepath": ["youtube_url", "upload"],
-            "YouTube": ["video", "upload"],
-            "fileupload": ["youtube_url", "video"],
+            "filepath": [...allSourceInputsExept("video"), ...emptyVideoInputs],
+            "YouTube": [...allSourceInputsExept("youtube_url"), ...emptyVideoInputs],
+            "fileupload": [...allSourceInputsExept("upload"), ...emptyVideoInputs],
+            "emptyvideo": [...allSourceInputsExept(""), ...commonLoaderInputs],
         },
     };
+
+    nodeVisibilityMap["UltimateVideoLoader (simple)"] = nodeVisibilityMap["UltimateVideoLoader"];
 
     const inputModeVisibilityMap = nodeVisibilityMap[node.comfyClass];
     
@@ -109,11 +122,11 @@ function widgetLogic(node, widget) {
 
 
 function handleUltimateVideoLoaderVisibility(node, source) {
-    const commonWidgets = ["start_sec", "end_sec", "force_size", "max_fps", "frame_load_cap"];
     const baseNamesMap = {
-        "YouTube": ["youtube_url", ...commonWidgets],
-        "filepath": ["video", ...commonWidgets],
-        "fileupload": ["fileupload", ...commonWidgets],
+        "YouTube": ["youtube_url", ...commonLoaderInputs],
+        "filepath": ["video", ...commonLoaderInputs],
+        "fileupload": ["fileupload", ...commonLoaderInputs],
+        "emptyvideo": [...emptyVideoInputs],
     };
 
     for (var key in baseNamesMap) {

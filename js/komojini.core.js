@@ -289,6 +289,8 @@ function addUploadWidget(nodeType, nodeData, widgetName, type="video") {
                     const pathValue = findWidgetByName(this, name)?.value;
                     if (!pathValue) {
                         console.debug("path not available", value);
+                        var params = {hidden: true};
+                        this.updateParameters(params, true);
                         return;
                     }
                     console.debug("pathValue", pathValue)
@@ -368,7 +370,7 @@ function addVideoPreview(nodeType) {
                 }
                 return [width, -4];//no loaded src, widget should not display
             },
-            value : {hidden: false, paused: false, params: {}}
+            value : {hidden: true, paused: false, params: {}}
         };
         //onRemoved isn't a litegraph supported function on widgets
         //Given that onremoved widget and node callbacks are sparse, this
@@ -432,6 +434,13 @@ function addVideoPreview(nodeType) {
                 }
                 previewWidget.value.params = {}
             }
+
+            if (params.hidden === true) {
+                previewWidget.value.hidden = true;
+            } else if (params.hidden === false) {
+                previewWidget.value.hidden = false;
+            }
+
             Object.assign(previewWidget.value.params, params)
             if (!force_update &&
                 !app.ui.settings.getSettingValue("komojini.AdvancedPreviews", false)) {
@@ -500,7 +509,14 @@ function addVideoPreview(nodeType) {
                 this.iframe.src = youtube_url
 
                 this.iframe.hidden = false;
+            } else {
+                this.videoEl.hidden = true;
+                this.imgEl.hidden = true; 
+                this.iframe.hidden = true;
+                this.value.hidden = true;
             }
+
+            fitHeight(this);
         }
         //Hide video element if offscreen
         //The multiline input implementation moves offscreen every frame
@@ -895,6 +911,8 @@ app.registerExtension({
                     const pathValue = findWidgetByName(this, name)?.value;
                     if (!pathValue) {
                         console.debug("path not available", value);
+                        var params = {filename: null, type: null, format: null, hidden: true};
+                        this.updateParameters(params, true);
                         return;
                     }
                     console.debug("source callback", value, "pathValue", pathValue)
@@ -909,11 +927,13 @@ app.registerExtension({
                     }
                     format += "/" + extension;
                     if (value === "fileupload") {
-                        var params = {filename : parts[1], type : parts[0], format: format};
+                        var params = {filename : parts[1], type : parts[0], format: format, hidden: false};
                     } else if (value === "filepath") {
-                        var params = {filename : pathValue, type: "path", format: format};
+                        var params = {filename : pathValue, type: "path", format: format, hidden: false};
+                    } else if (value ==="YouTube") {
+                        var params = {filename : pathValue, type: "youtube", format: "youtube", hidden: false};
                     } else {
-                        var params = {filename : pathValue, type: "youtube", format: "youtube"};
+                        var params = {filename: null, type: null, format: null, hidden: true};
                     }
                     console.debug("params updated", params);
                     this.updateParameters(params, true);
