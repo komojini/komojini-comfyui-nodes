@@ -52,6 +52,7 @@ else:
         else:
             ffmpeg_path = max(ffmpeg_paths, key=ffmpeg_suitability)
 
+
 def get_sorted_dir_files_from_directory(directory: str, skip_first_images: int=0, select_every_nth: int=1, extensions: Iterable=None):
     directory = directory.strip()
     dir_files = os.listdir(directory)
@@ -72,6 +73,7 @@ def get_sorted_dir_files_from_directory(directory: str, skip_first_images: int=0
     dir_files = dir_files[0::select_every_nth]
     return dir_files
 
+
 # modified from https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
 def calculate_file_hash(filename: str, hash_every_n: int = 1):
     h = hashlib.sha256()
@@ -86,6 +88,7 @@ def calculate_file_hash(filename: str, hash_every_n: int = 1):
             i += 1
     return h.hexdigest()
 
+
 def get_audio(file, start_time=0, duration=0):
     args = [ffmpeg_path, "-v", "error", "-i", file]
     if start_time > 0:
@@ -94,6 +97,8 @@ def get_audio(file, start_time=0, duration=0):
         args += ["-t", str(duration)]
     return subprocess.run(args + ["-f", "wav", "-"],
                           stdout=subprocess.PIPE, check=True).stdout
+
+
 def lazy_eval(func):
     class Cache:
         def __init__(self, func):
@@ -106,8 +111,10 @@ def lazy_eval(func):
     cache = Cache(func)
     return lambda : cache.get()
 
+
 def is_url(url):
     return url.split("://")[0] in ["http", "https"]
+
 
 def hash_path(path):
     if path is None:
@@ -115,6 +122,8 @@ def hash_path(path):
     if is_url(path):
         return "url"
     return calculate_file_hash(path.strip("\""))
+
+
 def validate_path(path, allow_none=False, allow_url=True):
     if path is None:
         return allow_none
@@ -124,3 +133,31 @@ def validate_path(path, allow_none=False, allow_url=True):
     if not os.path.isfile(path.strip("\"")):
         return "Invalid file path: {}".format(path)
     return True
+
+
+
+def to_hashable(inputs):
+    if isinstance(inputs, dict):
+        # Convert each key-value pair in the dictionary
+        hashable_dict = {key: to_hashable(value) for key, value in inputs.items()}
+        return frozenset(hashable_dict.items())
+    elif isinstance(inputs, list):
+        # Convert each element in the list
+        return tuple(to_hashable(item) for item in inputs)
+    else:
+        # Base case: if it's not a dictionary or list, return the element itself
+        return inputs
+
+
+def hashable_to_dict(hashable_representation):
+    if isinstance(hashable_representation, frozenset):
+        # Convert each key-value pair back to a dictionary
+        original_dict = {key: hashable_to_dict(value) for key, value in hashable_representation}
+        return original_dict
+    elif isinstance(hashable_representation, tuple):
+        # Convert each element in the tuple back to a list
+        original_list = [hashable_to_dict(item) for item in hashable_representation]
+        return original_list
+    else:
+        # Base case: if it's not a frozenset or tuple, return the element itself
+        return hashable_representation

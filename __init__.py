@@ -1,4 +1,3 @@
-
 from .nodes import *
 import folder_paths
 from .server import server
@@ -11,6 +10,8 @@ NODE_CLASS_MAPPINGS = {
     "ImageMerger": ImageMerger,
     "UltimateVideoLoader": UltimateVideoLoader,
     "UltimateVideoLoader (simple)": UltimateVideoLoader,
+    "KSamplerCacheable": KSamplerCacheable,
+    "KSamplerAdvancedCacheable": KSamplerAdvancedCacheable,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -18,10 +19,12 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ImageMerger": "Image Merger",
     "UltimateVideoLoader": "🎥Ultimate Video Loader🎥",
     "UltimateVideoLoader (simple)": "🎥Ultimate Video Loader (simple)🎥",
+    "KSamplerCacheable": "KSampler (cacheable)",
+    "KSamplerAdvancedCacheable": "KSamplerAdvanced (cacheable)",
 }
 
 
 __all__ = [
-    "NODE_CLASS_MAPPINGS", 
+    "NODE_CLASS_MAPPINGS",
     "NODE_DISPLAY_NAME_MAPPINGS",
 ]

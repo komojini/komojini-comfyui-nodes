@@ -312,20 +312,20 @@ class UltimateVideoLoader:
         logger.debug(f"loaded video images.shape: {images.shape}, frames_count: {frames_count}, fpe: {fps}, widthxheight: {width}x{height}")
         return (images, frames_count, fps, width, height,)
 
-    @classmethod
-    def IS_CHANGED(s, upload, **kwargs):
-        logger.debug(f"is_changed | source: {source}")
+    # @classmethod
+    # def IS_CHANGED(s, upload, **kwargs):
+    #     logger.debug(f"is_changed | source: {source}")
 
-        source = kwargs.get("source")
-        if source == "filepath":
-            video = kwargs.get("video")
-            return hash_path(video)
-        elif source == "fileupload":
-            image_path = folder_paths.get_annotated_filepath(upload)
-            return calculate_file_hash(image_path)
-        else:
-            youtube_url = kwargs.get("youtube_url")
-            return hash_path(youtube_url)
+    #     source = kwargs.get("source")
+    #     if source == "filepath":
+    #         video = kwargs.get("video")
+    #         return hash_path(video)
+    #     elif source == "fileupload":
+    #         image_path = folder_paths.get_annotated_filepath(upload)
+    #         return calculate_file_hash(image_path)
+    #     else:
+    #         youtube_url = kwargs.get("youtube_url")
+    #         return hash_path(youtube_url)
         
     # @classmethod
     # def VALIDATE_INPUTS(s, video, force_size, **kwargs):
