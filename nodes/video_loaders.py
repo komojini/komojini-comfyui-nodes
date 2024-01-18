@@ -4,7 +4,7 @@ import cv2
 import os
 from pathlib import Path
 from PIL import Image, ImageOps
-from typing import Tuple, Dict, List, Any
+from typing import Tuple, Dict, List, Any, Union
 import numpy as np
 
 import torch
@@ -171,7 +171,7 @@ def load_video_cv(
     return (images, frames_added, fps, width, height,)
 
 
-def is_gif(filename: Path | str) -> bool:
+def is_gif(filename) -> bool:
     return str(filename).endswith("gif")
 
 
