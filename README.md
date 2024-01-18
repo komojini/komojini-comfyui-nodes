@@ -1,6 +1,11 @@
 # komojini-comfyui-nodes
 Custom ComfyUI Nodes for video generation
 
+## Getter & Setter Nodes
+![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/a01be34e-f8df-4e6f-9364-d9b26de1a097)
+
+Getter & Setter nodes that ensures execution order by connecting them when starting the prompt.
+
 ## Video Loading Nodes
 ### Ultimate Video Loader
 Able to load video from several sources (filepath, YouTube, etc.)<br>
