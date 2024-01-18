@@ -87,6 +87,5 @@ class ImageGetter:
     def run(self, key, value=None, prompt=None, extra_pnginfo=None, unique_id=None):
         if value is None:
             logger.warning(f"No signal_opt assigned for id: {key}")
-            return MAPPED_VALUES.get(key)
         return (value, )
     
