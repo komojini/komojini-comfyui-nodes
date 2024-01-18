@@ -4,6 +4,7 @@ from .komojini_server import server
 
 WEB_DIRECTORY = "js"
 
+END_EMOJI = "🔥"
 
 NODE_CLASS_MAPPINGS = {
     "YouTubeVideoLoader": YouTubeVideoLoader,
@@ -15,6 +16,7 @@ NODE_CLASS_MAPPINGS = {
     "Setter": To,
     "Getter": From,
     "ImageGetter": ImageGetter,
+    "FlowBuilder": FlowBuilder,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -27,6 +29,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "Setter": "Setter",
     "Getter": "Getter",
     "ImageGetter": "ImageGetter",
+    "FlowBuilder": "FlowBuilder " + END_EMOJI,
 }
 
 

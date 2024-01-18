@@ -20,6 +20,12 @@ def is_safe(path):
         return False
     return common_path == basedir
 
+
+@server.PromptServer.instance.routes.get("/komojini/debug")
+async def get_debug(request):
+    return web.json_response({"enabled": True})
+
+
 @server.PromptServer.instance.routes.get("/viewvideo")
 async def view_video(request):
     query = request.rel_url.query

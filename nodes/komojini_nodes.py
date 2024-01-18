@@ -36,6 +36,24 @@ def get_file_item(base_type, path):
            }
 
 
+def workflow_to_map(workflow):
+    nodes = {}
+    links = {}
+    for link in workflow['links']:
+        links[link[0]] = link[1:]
+    for node in workflow['nodes']:
+        nodes[str(node['id'])] = node
+
+    return nodes, links
+
+
+def collect_non_reroute_nodes(node_map, links, res, node_id):
+    if node_map[node_id]['type'] != 'Reroute' and node_map[node_id]['type'] != 'Reroute (rgthree)':
+        res.append(node_id)
+    else:
+        for link in node_map[node_id]['outputs'][0]['links']:
+            next_node_id = str(links[link][2])
+            collect_non_reroute_nodes(node_map, links, res, next_node_id)
 
 
 class To:
@@ -67,7 +85,7 @@ class From:
 
     def run(self, key, value=None, prompt=None, extra_pnginfo=None, unique_id=None):
         if value is None:
-            logger.warning(f"No signal_opt assigned for id: {key}")
+            logger.warning(f"No signal_opt assigned for key: {key}")
         return (value, )
     
 
@@ -86,6 +104,24 @@ class ImageGetter:
 
     def run(self, key, value=None, prompt=None, extra_pnginfo=None, unique_id=None):
         if value is None:
-            logger.warning(f"No signal_opt assigned for id: {key}")
+            logger.warning(f"No signal_opt assigned for key: {key}")
+        return (value, )
+
+
+class FlowBuilder:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "value": (any_typ, ),
+            },
+        }
+    
+    FUNCTION = "run"
+    RETURN_TYPES = (any_typ, )
+    RETURN_NAMES = ("value", )
+    CATEGORY = "komojini/flow"
+
+    def run(self, value):
         return (value, )
     
