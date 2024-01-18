@@ -4,7 +4,7 @@ from .cacheable_nodes import (
     KSamplerCacheable, 
     KSamplerAdvancedCacheable,
 )
-from .komojini_nodes import From, To
+from .komojini_nodes import From, To, ImageGetter
 
 __all__ = [
     "YouTubeVideoLoader",
@@ -14,4 +14,5 @@ __all__ = [
     "KSamplerAdvancedCacheable",
     "From",
     "To",
+    "ImageGetter",
 ]

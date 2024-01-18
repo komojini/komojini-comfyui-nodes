@@ -36,7 +36,6 @@ def get_file_item(base_type, path):
            }
 
 
-MAPPED_VALUES = {}
 
 
 class To:
@@ -51,8 +50,6 @@ class To:
     RETURN_NAMES = ("value", )
 
     def run(self, key, value, prompt=None, extra_pnginfo=None, unique_id=None):
-        # PromptServer.instance.send_sync("img-send", {"link_id": link_id, "images": result['ui']['images']})
-        MAPPED_VALUES[key] = value
         return (value, )
 
 class From:
@@ -71,5 +68,25 @@ class From:
     def run(self, key, value=None, prompt=None, extra_pnginfo=None, unique_id=None):
         if value is None:
             logger.warning(f"No signal_opt assigned for id: {key}")
+        return (value, )
+    
+
+class ImageGetter:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {"key": ("STRING", {"default": ""})},
+                "optional" : {
+                    "value": ("IMAGE", )
+                },
+                "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}}
+    
+    FUNCTION = "run"
+    RETURN_TYPES = ("IMAGE", )
+    RETURN_NAMES = ("value", )
+
+    def run(self, key, value=None, prompt=None, extra_pnginfo=None, unique_id=None):
+        if value is None:
+            logger.warning(f"No signal_opt assigned for id: {key}")
             return MAPPED_VALUES.get(key)
         return (value, )
+    

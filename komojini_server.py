@@ -175,7 +175,7 @@ def test_prompt(json_data):
             break
 
 
-def search_from_to_connected_nodes(json_data):
+def search_setter_getter_connected_nodes(json_data):
     key_to_getter_node_ids = {}
     key_to_setter_node_id = {}
     
@@ -200,7 +200,7 @@ def search_from_to_connected_nodes(json_data):
 
 def connect_to_from_nodes(json_data):
     prompt = json_data["prompt"]
-    key_to_getter_node_ids, key_to_setter_node_id = search_from_to_connected_nodes(json_data)
+    key_to_getter_node_ids, key_to_setter_node_id = search_setter_getter_connected_nodes(json_data)
     for getter_key, getter_node_ids in key_to_getter_node_ids.items():
         if getter_key in key_to_setter_node_id:
             setter_node_id = key_to_setter_node_id[getter_key]

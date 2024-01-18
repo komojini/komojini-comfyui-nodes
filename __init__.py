@@ -14,6 +14,7 @@ NODE_CLASS_MAPPINGS = {
     "KSamplerAdvancedCacheable": KSamplerAdvancedCacheable,
     "Setter": To,
     "Getter": From,
+    "ImageGetter": ImageGetter,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -25,6 +26,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "KSamplerAdvancedCacheable": "KSamplerAdvanced (cacheable)",
     "Setter": "Setter",
     "Getter": "Getter",
+    "ImageGetter": "ImageGetter",
 }
 
 
