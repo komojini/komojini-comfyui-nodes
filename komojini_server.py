@@ -5,6 +5,7 @@ import time
 import subprocess
 from .nodes.utils import is_url, get_sorted_dir_files_from_directory, ffmpeg_path
 from comfy.k_diffusion.utils import FolderOfImages
+import nodes
 
 web = server.web
 
@@ -155,3 +156,86 @@ async def get_path(request):
             pass
 
     return web.json_response(valid_items)
+
+def test_prompt(json_data):
+    prompt = json_data['prompt']
+    print(f"len(prompt): {len(prompt)}")
+    max_print = 100
+    cur_print = 0
+    for k, v in prompt.items():
+        inputs = v.get("inputs")
+        class_type = v.get("class_type")
+
+        for input_k, input_v in inputs.items():
+            if isinstance(input_v, list) and len(input_v) == 2:
+                from_k = input_v[0]
+
+        cur_print += 1
+        if cur_print >= max_print:
+            break
+
+
+def search_from_to_connected_nodes(json_data):
+    key_to_getter_node_ids = {}
+    key_to_setter_node_id = {}
+    
+    prompt = json_data["prompt"]
+    for node_id, v in prompt.items():
+        if "class_type" in v and "inputs" in v:
+            class_type: str = v["class_type"]
+            inputs = v["inputs"]
+            
+            if class_type.endswith("Getter"):
+                key = inputs["key"]
+                if key in key_to_getter_node_ids:
+                    key_to_getter_node_ids[key].append(node_id)
+                else:
+                    key_to_getter_node_ids[key] = [node_id]
+            elif class_type.endswith("Setter"):
+                key = inputs["key"]
+                key_to_setter_node_id[key] = node_id
+    
+    return key_to_getter_node_ids, key_to_setter_node_id
+
+
+def connect_to_from_nodes(json_data):
+    prompt = json_data["prompt"]
+    key_to_getter_node_ids, key_to_setter_node_id = search_from_to_connected_nodes(json_data)
+    for getter_key, getter_node_ids in key_to_getter_node_ids.items():
+        if getter_key in key_to_setter_node_id:
+            setter_node_id = key_to_setter_node_id[getter_key]
+            for getter_node_id in getter_node_ids:
+                print(f"Connect node with getter: {getter_node_id}, setter: {setter_node_id}, with key: {getter_key}")
+                prompt[getter_node_id]["inputs"]["value"] = [setter_node_id, 0]
+                print(f"Connected getter {getter_node_id}: {json_data['prompt'][getter_node_id]}")
+        else:
+            print(f"[WARN] Komojini-ComfyUI-CustonNodes: There is no 'Setter' node in the workflow for key: {getter_key}")
+    
+
+def workflow_update(json_data):
+    prompt = json_data["prompt"]
+    for k, v in prompt.items():
+        if "class_type" in v and "inputs" in v:
+            class_type = v["class_type"]
+            inputs = v["inputs"]
+
+            class_ = nodes.NODE_CLASS_MAPPINGS[class_type]
+            if hasattr(class_, "OUTPUT_NODE") and class_.OUTPUT_NODE == True:
+                pass 
+            if class_type == "Getter":
+                id = inputs["key"]
+                
+
+            
+            
+def on_prompt_handler(json_data):
+    try:
+        test_prompt(json_data)
+        workflow_update(json_data)
+        connect_to_from_nodes(json_data)
+
+    except Exception as e:
+        print(f"[WARN] Komojini-ComfyUI-CustomNodes: Error on prompt\n{e}")
+    return json_data
+
+server.PromptServer.instance.add_on_prompt_handler(on_prompt_handler)

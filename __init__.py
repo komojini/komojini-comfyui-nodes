@@ -1,6 +1,6 @@
 from .nodes import *
 import folder_paths
-from .server import server
+from .komojini_server import server
 
 WEB_DIRECTORY = "js"
 
@@ -12,6 +12,8 @@ NODE_CLASS_MAPPINGS = {
     "UltimateVideoLoader (simple)": UltimateVideoLoader,
     "KSamplerCacheable": KSamplerCacheable,
     "KSamplerAdvancedCacheable": KSamplerAdvancedCacheable,
+    "Setter": To,
+    "Getter": From,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -21,6 +23,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "UltimateVideoLoader (simple)": "🎥Ultimate Video Loader (simple)🎥",
     "KSamplerCacheable": "KSampler (cacheable)",
     "KSamplerAdvancedCacheable": "KSamplerAdvanced (cacheable)",
+    "Setter": "Setter",
+    "Getter": "Getter",
 }
 
 
