@@ -152,12 +152,12 @@ const komojini_widgets = {
                         app.canvas.setDirty(true)
                         preview.value = ''
                     }
-                    const reset_button = this.addWidget(
-                        'button',
-                        `Reset`,
-                        'reset',
-                        onReset
-                    )
+                    // const reset_button = this.addWidget(
+                    //     'button',
+                    //     `Reset`,
+                    //     'reset',
+                    //     onReset
+                    // )
 
                     const run_button = this.addWidget(
                         'button',
@@ -165,8 +165,12 @@ const komojini_widgets = {
                         'queue',
                         () => {
                             onReset()
+                            preview.value = 'Flow running...'
                             return (async _ => {
                                 log('Queue button pressed')
+                                app.graph._nodes.forEach((node) => {
+                                    node.mode = 0;
+                                })
                                 await executeAndWaitForTargetNode(app, this);
                                 log('Queue finished')
                                 preview.value = 'Queue finished!'
@@ -178,9 +182,9 @@ const komojini_widgets = {
                     const preview = this.addCustomWidget(DEBUG_STRING('Preview', ''))
                     preview.parent = this
 
-                    preview.afterQueued = function() {
-                        preview.value = 'Flow running...'
-                    }
+                    // preview.afterQueued = function() {
+                    //     preview.value = 'Flow running...'
+                    // }
                     this.onRemoved = () => {
                         shared.cleanupNode(this)
                         app.canvas.setDirty(true)
