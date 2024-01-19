@@ -124,7 +124,5 @@ class FlowBuilder:
     CATEGORY = "komojini/flow"
 
     def run(self, value, prompt, extra_pnginfo, unique_id):
-        print(extra_pnginfo["workflow"], "\n\n\n")
-        print(prompt)
         return (value, )
     
