@@ -1,6 +1,7 @@
 # komojini-comfyui-nodes
 Custom ComfyUI Nodes for video generation
 ## Flow Nodes
+### FlowBuilder
 ![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/97d7e0f0-7ed2-44af-929a-35e6cf3aa622)
 
 Flow node that ables to run only a part of the entire workflow.
