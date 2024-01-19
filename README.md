@@ -1,5 +1,11 @@
 # komojini-comfyui-nodes
 Custom ComfyUI Nodes for video generation
+## Flow Nodes
+![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/97d7e0f0-7ed2-44af-929a-35e6cf3aa622)
+
+Flow node that ables to run only a part of the entire workflow.
+By using this, you will be able to generate images or videos "step by step"
+Add the "FlowBuilder" node right before the output node (PreviewImage, SaveImage, VideoCombine, etc.), then it will automatically parse only the nodes for generating that output.
 
 ## Getter & Setter Nodes
 ![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/a01be34e-f8df-4e6f-9364-d9b26de1a097)
