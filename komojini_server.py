@@ -26,6 +26,10 @@ async def get_debug(request):
     return web.json_response({"enabled": True})
 
 
+@server.PromptServer.instance.routes.get("/komojini/onqueue")
+async def on_queue(request):
+    pass
+
 @server.PromptServer.instance.routes.get("/viewvideo")
 async def view_video(request):
     query = request.rel_url.query
@@ -232,8 +236,6 @@ def workflow_update(json_data):
                 id = inputs["key"]
                 
 
-            
-            
 def on_prompt_handler(json_data):
     try:
         test_prompt(json_data)

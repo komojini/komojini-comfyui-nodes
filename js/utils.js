@@ -24,15 +24,61 @@ export const findWidgetsByType = (node, type) => {
 
 export const getNodeByLink = (linkId, type) => app.graph.getNodeById(app.graph.links[linkId][type == "input" ? "origin_id" : "target_id"]);
 
+// node.title is visual title
+const isSetter = (node) => node.type.endsWith("Setter");
+const isGetter = (node) => node.type.endsWith("Getter");
+
+const isSetNode = (node) => node.type === "SetNode";
+const isGetNode = (node) => node.type === "GetNode";
+
+function findSetterNode(key) {
+    return app.graph._nodes.find((node) => isSetter(node) && findWidgetByName(node, "key").value === key);
+}
+
+function findGetterNode(key) {
+    return app.graph._nodes.find((node) => isGetter(node) && findWidgetByName(node, "key").value === key);
+}
+
+function findSetNode(key) {
+    return app.graph._nodes.find((node) => isSetNode(node) && node.widgets_values === key);
+}
+
+function findGetNode(key) {
+    return app.graph._nodes.find((node) => isGetNode(node) && node.widgets_values === key);
+}
+
 export function enableOnlyRelatedNodes(targetNode) {
     let whitelist = {};
 
     function travelBackward(node) {
         whitelist[node.id] = node;
         if (!node.inputs) return;
-        for (const input of node.inputs) {
-            if (!input.link) continue
-            travelBackward(getNodeByLink(input.link, "input"));
+
+        if (isGetter(node)) {
+            const key = findWidgetByName(node, "key").value;
+            const setterNode = findSetterNode(key);
+
+            if (!setterNode) {
+                shared.errorLogger('No Setter node find for key:', key);
+            }
+            
+            shared.log("Connecting Getter & Setter", node.title, setterNode.title);
+            travelBackward(setterNode);
+        } else if (isGetNode(node)) {
+            const key = findWidgetByName(node, "Constant").value;
+            const setNode = findSetNode(key);
+
+            if (!setNode) {
+                shared.errorLogger('No SetNode find for Constant:', key);
+            }
+
+            shared.log("Connecting GetNode & SetNode", node.type, setNode.type);
+            travelBackward(setNode);
+        } else {
+            for (const input of node.inputs) {
+                if (!input.link) continue
+                travelBackward(getNodeByLink(input.link, "input"));
+            }
         }
     }
 
@@ -40,6 +86,7 @@ export function enableOnlyRelatedNodes(targetNode) {
         whitelist[node.id] = node;
         travelBackward(node);
         if (!node.outputs) return;
+
         for (const output of node.outputs) {
             if (!output.links) continue;
             for (const link of output.links) {

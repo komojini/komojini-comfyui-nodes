@@ -115,6 +115,7 @@ class FlowBuilder:
             "required": {
                 "value": (any_typ, ),
             },
+            "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"},
         }
     
     FUNCTION = "run"
@@ -122,6 +123,8 @@ class FlowBuilder:
     RETURN_NAMES = ("value", )
     CATEGORY = "komojini/flow"
 
-    def run(self, value):
+    def run(self, value, prompt, extra_pnginfo, unique_id):
+        print(extra_pnginfo["workflow"], "\n\n\n")
+        print(prompt)
         return (value, )
     
