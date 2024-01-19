@@ -60,20 +60,21 @@ export function enableOnlyRelatedNodes(targetNode) {
 
             if (!setterNode) {
                 shared.errorLogger('No Setter node find for key:', key);
+            } else {
+                shared.log("Connecting Getter & Setter", node?.widgets_values);
+                travelBackward(setterNode);
             }
             
-            shared.log("Connecting Getter & Setter", node.title, setterNode.title);
-            travelBackward(setterNode);
         } else if (isGetNode(node)) {
             const key = findWidgetByName(node, "Constant").value;
             const setNode = findSetNode(key);
 
             if (!setNode) {
                 shared.errorLogger('No SetNode find for Constant:', key);
+            } else {
+                shared.log("Connecting GetNode & SetNode", node?.widgets_values);
+                travelBackward(setNode);
             }
-
-            shared.log("Connecting GetNode & SetNode", node.type, setNode.type);
-            travelBackward(setNode);
         } else {
             for (const input of node.inputs) {
                 if (!input.link) continue
