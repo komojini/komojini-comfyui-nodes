@@ -7,6 +7,7 @@ Custom ComfyUI Nodes for video generation
   <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/78408eb0-cd55-4b7d-879d-0d57d9b30e89" height="400" />
 </p>
 
+Go to settings and check "🔥 Show System Status" to enable it.
 ![741E724B-E861-4C93-9E38-D61B06FFD14D_4_5005_c](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/089ea987-9a6d-4868-bad4-f7f44e2bc85b)
 
 
