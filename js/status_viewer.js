@@ -4,6 +4,12 @@ import { ComfyDialog, $el } from "../../scripts/ui.js";
 import * as shared from "./comfy_shared.js";
 
 
+app.ui.settings.addSetting({
+    id: "komojini.ShowSystemStatus",
+    name: "🔥 Show System Status",
+    type: "boolean",
+    defaultValue: false,
+})
 
 app.registerExtension({
     name: "komojini.statusviewer",
@@ -11,7 +17,11 @@ app.registerExtension({
 
     },
     async setup() {
-    
+
+        if (!app.ui.settings.getSettingValue("komojini.ShowSystemStatus", false)) {
+            return;
+        }
+
         const menu = document.querySelector(".comfy-menu");
 
         const separator = document.createElement("hr");

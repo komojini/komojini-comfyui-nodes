@@ -815,7 +815,7 @@ function searchBox(event, [x,y], node) {
 
 app.ui.settings.addSetting({
     id: "komojini.AdvancedPreviews",
-    name: "🎥Komojini Advanced Previews",
+    name: "🔥 Komojini Advanced Previews",
     type: "boolean",
     defaultValue: false,
 });
