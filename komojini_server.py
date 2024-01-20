@@ -25,13 +25,13 @@ def is_safe(path):
     return common_path == basedir
 
 
-
 @server.PromptServer.instance.routes.get("/komojini/systemstatus")
 async def get_system_status(request):
     system_status = {
         "cpu": None,
         "gpus": None,
         "cpustats": None,
+        "virtual_memory": dict(psutil.virtual_memory()._asdict()), # {'total': 66480500736, 'available': 61169692672, 'percent': 8.0, 'used': 4553539584, 'free': 41330143232, 'active': 13218308096, 'inactive': 10867519488, 'buffers': 374468608, 'cached': 20222349312, 'shared': 15781888, 'slab': 567083008}
     }
 
     # Get CPU usage
@@ -39,6 +39,8 @@ async def get_system_status(request):
     cpu_stats = psutil.cpu_stats() # scpustats(ctx_switches=17990329, interrupts=17614856, soft_interrupts=10633860, syscalls=0)
     cpu_times_percent = psutil.cpu_times_percent()
     cpu_count = psutil.cpu_count()
+
+
     # system_status["cpustats"] = cpu.__dict__
     system_status['cpu'] = {
         "cpu_usage": cpu_usage,

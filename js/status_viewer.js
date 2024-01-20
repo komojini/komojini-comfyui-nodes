@@ -47,8 +47,15 @@ app.registerExtension({
         gpuInfoEl.style.width = "100%";
         // gpuInfoEl.style.textAlign = "left";
 
+        const memoryInfoEl = document.createElement("div");
+        memoryInfoEl.id = "memoryInfo";
+        memoryInfoEl.style.width = "100%";
+        
+
         systemStatus.appendChild(gpuInfoEl);
         systemStatus.appendChild(cpuInfoEl);
+        systemStatus.appendChild(memoryInfoEl);
+
         
         function getStyledText(text, style) {
             var styleString = "";
@@ -62,17 +69,18 @@ app.registerExtension({
             
             return `<span style="${styleString}">${text}</span>`
         }
-
-        const gpuInfoAttrs = [
-            "memoryTotal",
-            "memoryUtil", 
-            "memoryFree",
-            "driver",
-            "name",
-            "temperature",
-            "gpu_usage",
-        ];
         
+        function addTitleEl(title, parent) {
+            const titleEl = document.createElement("div");
+            titleEl.innerHTML = getStyledText(title, {color: "yellow"});
+            titleEl.style.margin = "10px 0";
+            parent.appendChild(titleEl);
+        }
+
+        addTitleEl("GPU", gpuInfoEl);
+        addTitleEl("CPU", cpuInfoEl);
+        addTitleEl("Memory", memoryInfoEl);
+
         const gpuTitle = document.createElement("div");
         gpuTitle.innerHTML = getStyledText("GPU", {color: "yellow"});
         gpuTitle.style.margin = "10px 0";
@@ -98,16 +106,15 @@ app.registerExtension({
             gpuInfoEl.appendChild(gpuElement);
         }
 
-
-        const cpuTitle = document.createElement("div");
-        cpuTitle.textContent = "CPU";
-        cpuTitle.style.cssText = "color: yellow;" //background-color: yellow";
-        cpuInfoEl.appendChild(cpuTitle);
-        
         const cpuUsageEl = document.createElement("div");
-        cpuUsageEl.id = "cpuUsageEl";        
+        cpuUsageEl.id = "cpuUsage";        
         cpuUsageEl.style.margin = "3px";
         cpuInfoEl.appendChild(cpuUsageEl);
+
+        const memoryUsageEl =  document.createElement("div");
+        memoryUsageEl.id = "memoryUsage";        
+        memoryUsageEl.style.margin = "3px";
+        memoryInfoEl.appendChild(memoryUsageEl);
 
         const nameStyle = {
             display: "inline-block",
@@ -127,6 +134,12 @@ app.registerExtension({
                 ${getStyledText(Math.round(gpuInfo.memoryTotal / 10) * 10 / 1000, {"font-size": "10pt"})} 
                 ${getStyledText("GB", {"font-size": "8pt"})}`;
             gpuTemperatureEl.innerHTML = `${getStyledText("Temp", nameStyle)}: ${getStyledText(gpuInfo.temperature, "white")}°`;
+
+            memoryUsageEl.innerHTML = `${getStyledText("RAM", nameStyle)}:
+                ${getStyledText(Math.round(data.virtual_memory.used / (10 ** 8)) * (10 ** 8) / (10 ** 9), {color: "white"})} / 
+                ${getStyledText(Math.round(data.virtual_memory.total / (10 ** 8)) * (10 ** 8) / (10 ** 9), {"font-size": "10pt"})} 
+                ${getStyledText("GB", {"font-size": "8pt"})}`;
+
         }
 
         // Function to fetch and update system status
