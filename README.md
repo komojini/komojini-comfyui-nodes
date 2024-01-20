@@ -1,5 +1,13 @@
 # komojini-comfyui-nodes
 Custom ComfyUI Nodes for video generation
+
+## System Status Viewer
+<p float="left">
+  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/27d9c80a-8bb7-47de-a851-ddee84835628" height="300" />
+  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/78408eb0-cd55-4b7d-879d-0d57d9b30e89" height="300" />
+</p>
+<img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/97d7e0f0-7ed2-44af-929a-35e6cf3aa622" width="100" />
+
 ## Flow Nodes
 ### FlowBuilder
 ![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/97d7e0f0-7ed2-44af-929a-35e6cf3aa622)
