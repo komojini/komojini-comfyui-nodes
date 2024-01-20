@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 import torch
-from typing import Tuple
+from typing import Tuple, Optional
 
 
 def tensor_to_int(tensor, bits):
@@ -99,7 +99,7 @@ class ImageMerger:
 
 
     @staticmethod
-    def get_xy(mark_string: str, height: int, width: int) -> Tuple[int, int] | None:
+    def get_xy(mark_string: str, height: int, width: int) -> Optional[Tuple[int, int]]:
         mark_string = mark_string.strip()
         if not mark_string.startswith("(") or not mark_string.endswith(")"):
             print(f"mark_string is not appropriate, mark_string: {mark_string}")

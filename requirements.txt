@@ -3,3 +3,5 @@ opencv-python
 numpy
 torch
 pillow
+psutil
+gputil

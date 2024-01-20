@@ -2,10 +2,14 @@ import server
 import folder_paths
 import os
 import time
+import psutil
+import GPUtil
 import subprocess
+
 from .nodes.utils import is_url, get_sorted_dir_files_from_directory, ffmpeg_path
 from comfy.k_diffusion.utils import FolderOfImages
 import nodes
+
 
 web = server.web
 
@@ -19,6 +23,38 @@ def is_safe(path):
         #Different drive on windows
         return False
     return common_path == basedir
+
+
+
+@server.PromptServer.instance.routes.get("/komojini/systemstatus")
+async def get_system_status(request):
+    system_status = {
+        "cpu": None,
+        "gpus": None,
+        "cpustats": None,
+    }
+
+    # Get CPU usage
+    cpu_usage = psutil.cpu_percent(interval=1)
+    cpu_stats = psutil.cpu_stats() # scpustats(ctx_switches=17990329, interrupts=17614856, soft_interrupts=10633860, syscalls=0)
+    cpu_times_percent = psutil.cpu_times_percent()
+    cpu_count = psutil.cpu_count()
+    # system_status["cpustats"] = cpu.__dict__
+    system_status['cpu'] = {
+        "cpu_usage": cpu_usage,
+        "cpu_times_percent": cpu_times_percent,
+        "cpu_count": cpu_count,
+    }
+    # Get GPU usage
+    try:
+        gpu = GPUtil.getGPUs()[0]  # Assuming you have only one GPU
+        gpus = GPUtil.getGPUs()
+        system_status["gpus"] = [gpu.__dict__ for gpu in gpus]
+
+    except Exception as e:
+        system_status['gpus'] = None  # Handle the case where GPU information is not available
+
+    return web.json_response(system_status)
 
 
 @server.PromptServer.instance.routes.get("/komojini/debug")
