@@ -2,12 +2,16 @@
 Custom ComfyUI Nodes for video generation
 
 ## System Current Status Viewer
+Shows current status of GPU, CPU, and Memory every 1 second.
+
 <p float="left">
   <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/64954343-d75f-4510-8664-1fafdd40a83d" height="400" />
   <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/5d61b82f-58a8-4309-a58d-8bdc764adcb9" height="400" />
 </p>
 
-Shows current status of GPU, CPU, and Memory every 1 second.
+- Current GPU memory, usage percentage, temperature
+- Current CPU usage
+- Current RAM usage
 
 Go to settings and check "🔥 Show System Status" to enable it.
 
