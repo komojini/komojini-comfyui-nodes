@@ -5,6 +5,8 @@ Custom ComfyUI Nodes for video generation
 2. [ Flow Nodes](#flownodes)
 3. [ Getter & Setter Nodes](#gettersetternodes)
 4. [ Video Loading Nodes](#videoloadingnodes)
+  a. [ Ultimate Video Loader](#ultimatevideoloader)
+  b. [ YouTube Video Loader](#youtubevideoloader)
 
 <a name="statusviewer"></a>
 ## System Current Status Viewer
@@ -38,8 +40,9 @@ Add the "FlowBuilder" node right before the output node (PreviewImage, SaveImage
 
 Getter & Setter nodes that ensures execution order by connecting them when starting the prompt.
 
-<a name="videoloadingnodes">
+<a name="videoloadingnodes"></a>
 ## Video Loading Nodes
+<a name="ultimatevideoloader"></a>
 ### Ultimate Video Loader
 Able to load video from several sources (filepath, YouTube, etc.)<br>
 3 source types available: 
@@ -64,6 +67,7 @@ The video downloaded from YouTube will be saved in "path-to-comfyui/output/youtu
 ### Ultimate Video Loader (simple)
 Same as above but without preview.
 <br><br>
+<a name=youtubevideoloader></a>
 ### YouTube Video Loader
 <img width="50%" alt="Youtube video loader" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/65142191-f7e9-4341-ba47-4226b31451fd"><br>
 Able to load and extract video from youtube.
