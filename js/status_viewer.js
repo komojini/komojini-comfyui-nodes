@@ -128,7 +128,7 @@ app.registerExtension({
             gpuUsageEl.innerHTML =  `${getStyledText("Usage", nameStyle)}: ${getStyledText(gpuInfo.load * 100, {color: "white"})}${getStyledText("%", {color: "white"})}`;
 
             gpuMemoryUsageEl.innerHTML = `${getStyledText("VRAM", nameStyle)}: 
-                ${getStyledText(Math.round(gpuInfo.memoryTotal * gpuInfo.memoryUtil) / 1000, {color: "white"})} / 
+                ${getStyledText(Math.round(gpuInfo.memoryTotal * gpuInfo.memoryUtil / 10) * 10 / 1000, {color: "white"})} / 
                 ${getStyledText(Math.round(gpuInfo.memoryTotal / 10) * 10 / 1000, {"font-size": "10pt"})} 
                 ${getStyledText("GB", {"font-size": "8pt"})}`;
             gpuTemperatureEl.innerHTML = `${getStyledText("Temp", nameStyle)}: ${getStyledText(gpuInfo.temperature, "white")}°`;
