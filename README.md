@@ -1,12 +1,12 @@
 # komojini-comfyui-nodes
 Custom ComfyUI Nodes for video generation
 
-1. [ System Current Status Viewer](#statusviewer)
-2. [ Flow Nodes](#flownodes)
-3. [ Getter & Setter Nodes](#gettersetternodes)
-4. [ Video Loading Nodes](#videoloadingnodes)
-  a. [ Ultimate Video Loader](#ultimatevideoloader)
-  b. [ YouTube Video Loader](#youtubevideoloader)
+- [ System Current Status Viewer](#statusviewer)
+- [ Flow Nodes](#flownodes)
+- [Getter & Setter Nodes](#gettersetternodes)
+- [ Video Loading Nodes](#videoloadingnodes)
+  - [ Ultimate Video Loader](#ultimatevideoloader)
+  - [ YouTube Video Loader](#youtubevideoloader)
 
 <a name="statusviewer"></a>
 ## System Current Status Viewer
