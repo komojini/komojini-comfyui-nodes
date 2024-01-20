@@ -3,9 +3,10 @@ Custom ComfyUI Nodes for video generation
 
 ## GPU & CPU Status Viewer
 <p float="left">
-  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/27d9c80a-8bb7-47de-a851-ddee84835628" height="400" />
-  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/78408eb0-cd55-4b7d-879d-0d57d9b30e89" height="400" />
+  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/64954343-d75f-4510-8664-1fafdd40a83d" height="400" />
+  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/5d61b82f-58a8-4309-a58d-8bdc764adcb9" height="400" />
 </p>
+
 
 Go to settings and check "🔥 Show System Status" to enable it.
 
