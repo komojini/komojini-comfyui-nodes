@@ -75,16 +75,12 @@ app.registerExtension({
             titleEl.innerHTML = getStyledText(title, {color: "yellow"});
             titleEl.style.margin = "10px 0";
             parent.appendChild(titleEl);
+            return titleEl;
         }
 
-        addTitleEl("GPU", gpuInfoEl);
-        addTitleEl("CPU", cpuInfoEl);
-        addTitleEl("Memory", memoryInfoEl);
-
-        const gpuTitle = document.createElement("div");
-        gpuTitle.innerHTML = getStyledText("GPU", {color: "yellow"});
-        gpuTitle.style.margin = "10px 0";
-        gpuInfoEl.appendChild(gpuTitle);
+        const gpuTitleEl = addTitleEl("GPU", gpuInfoEl);
+        const cpuTitleEl = addTitleEl("CPU", cpuInfoEl);
+        const memoryTitleEl = addTitleEl("Memory", memoryInfoEl);
 
         let gpuElements = [];
 
@@ -125,7 +121,7 @@ app.registerExtension({
             
             cpuUsageEl.innerHTML = `${getStyledText("Usage", nameStyle)}: ${getStyledText(data.cpu.cpu_usage, {color: "white"})}${getStyledText("%", {color: "white"})}`;
             const gpuInfo = data.gpus[0];
-            gpuTitle.innerHTML = getStyledText("GPU ", {color: "yellow"}) + "<br>" + `(${getStyledText(gpuInfo.name, {"font-size": "8pt"})})`;
+            gpuTitleEl.innerHTML = getStyledText("GPU ", {color: "yellow"}) + "<br>" + `(${getStyledText(gpuInfo.name, {"font-size": "8pt"})})`;
 
             gpuUsageEl.innerHTML =  `${getStyledText("Usage", nameStyle)}: ${getStyledText(gpuInfo.load * 100, {color: "white"})}${getStyledText("%", {color: "white"})}`;
 
