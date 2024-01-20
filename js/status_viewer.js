@@ -132,13 +132,12 @@ app.registerExtension({
                 console.error('Error fetching system status:', error);
             }
         }
+        menu.append(separator);
+        menu.append(systemStatus);
 
         // Fetch system status initially and every 1 seconds
         fetchSystemStatus();
         setInterval(fetchSystemStatus, 1000);
-
-        menu.append(separator);
-        menu.append(systemStatus);
     },
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
 
