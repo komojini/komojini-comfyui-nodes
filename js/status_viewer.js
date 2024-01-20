@@ -36,11 +36,13 @@ app.registerExtension({
         systemStatus.style.textAlign = "left";
         systemStatus.style.backgroundColor = "black";
         systemStatus.style.padding = "0 6px";
+        systemStatus.style.margin = "0 10px";
+        systemStatus.style.borderRadius = "8px";
 
         const cpuInfoEl = document.createElement("div");
         cpuInfoEl.id = "cpuInfo";
         cpuInfoEl.style.width = "100%";
-        cpuInfoEl.style.margin = "8px 0";
+        cpuInfoEl.style.margin = "8px 0 0 0";
 
         const gpuInfoEl = document.createElement("div");
         gpuInfoEl.id = "gpuInfo";
@@ -50,7 +52,7 @@ app.registerExtension({
         const memoryInfoEl = document.createElement("div");
         memoryInfoEl.id = "memoryInfo";
         memoryInfoEl.style.width = "100%";
-        
+        memoryInfoEl.style.margin = "8px 0";
 
         systemStatus.appendChild(gpuInfoEl);
         systemStatus.appendChild(cpuInfoEl);
@@ -98,18 +100,18 @@ app.registerExtension({
         gpuElements.push(gpuTemperatureEl)
 
         for (var gpuElement of gpuElements) {
-            gpuElement.style.margin = "3px";
+            gpuElement.style.margin = "4px";
             gpuInfoEl.appendChild(gpuElement);
         }
 
         const cpuUsageEl = document.createElement("div");
         cpuUsageEl.id = "cpuUsage";        
-        cpuUsageEl.style.margin = "3px";
+        cpuUsageEl.style.margin = "4px";
         cpuInfoEl.appendChild(cpuUsageEl);
 
         const memoryUsageEl =  document.createElement("div");
         memoryUsageEl.id = "memoryUsage";        
-        memoryUsageEl.style.margin = "3px";
+        memoryUsageEl.style.margin = "4px";
         memoryInfoEl.appendChild(memoryUsageEl);
 
         const nameStyle = {
