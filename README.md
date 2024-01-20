@@ -1,6 +1,12 @@
 # komojini-comfyui-nodes
 Custom ComfyUI Nodes for video generation
 
+1. [ System Current Status Viewer](#statusviewer)
+2. [ Flow Nodes](#flownodes)
+3. [ Getter & Setter Nodes](#gettersetternodes)
+4. [ Video Loading Nodes](#videoloadingnodes)
+
+<a name="statusviewer"></a>
 ## System Current Status Viewer
 Shows current status of GPU, CPU, and Memory every 1 second.
 
@@ -17,7 +23,7 @@ Go to settings and check "🔥 Show System Status" to enable it.
 
 ![741E724B-E861-4C93-9E38-D61B06FFD14D_4_5005_c](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/089ea987-9a6d-4868-bad4-f7f44e2bc85b)
 
-
+<a name="flownodes"></a>
 ## Flow Nodes
 ### FlowBuilder
 ![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/97d7e0f0-7ed2-44af-929a-35e6cf3aa622)
@@ -26,11 +32,13 @@ Flow node that ables to run only a part of the entire workflow.
 By using this, you will be able to generate images or videos "step by step"
 Add the "FlowBuilder" node right before the output node (PreviewImage, SaveImage, VideoCombine, etc.), then it will automatically parse only the nodes for generating that output.
 
+<a name="gettersetternodes"></a>
 ## Getter & Setter Nodes
 ![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/a01be34e-f8df-4e6f-9364-d9b26de1a097)
 
 Getter & Setter nodes that ensures execution order by connecting them when starting the prompt.
 
+<a name="videoloadingnodes">
 ## Video Loading Nodes
 ### Ultimate Video Loader
 Able to load video from several sources (filepath, YouTube, etc.)<br>
