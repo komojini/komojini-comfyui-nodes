@@ -13,6 +13,9 @@ class AnyType(str):
 any_typ = AnyType("*")
 
 
+HIDDEN_ARGS =  {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}
+
+
 def get_file_item(base_type, path):
     path_type = base_type
 
@@ -60,15 +63,43 @@ class To:
     @classmethod
     def INPUT_TYPES(cls):
         return {"required": {"key": ("STRING", {"default": ""}),
-                             "value": (any_typ, )},
-                "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}}
+                             },
+                "optional": {"value": (any_typ, )}
+                # "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}
+                }
     
     FUNCTION = "run"
     RETURN_TYPES = (any_typ, )
-    RETURN_NAMES = ("value", )
+    RETURN_NAMES = ("*", )
 
-    def run(self, key, value, prompt=None, extra_pnginfo=None, unique_id=None):
+    def run(self, key, **kwargs):
+        if "*" in kwargs:
+            value = kwargs["*"]
+        elif "value" in kwargs:
+            value = kwargs["value"]
+        else:
+            logger.warning(f"No value assigned for key: {key}, inputs: {kwargs}")
+
+            value = next(iter(kwargs.values()))
+
         return (value, )
+
+
+def run_getter(key, **kwargs):
+    if "*" in kwargs:
+        return (kwargs["*"], )
+    elif "value" in kwargs:
+        return (kwargs["value"], )
+
+    else:
+        for k, v in kwargs.items():
+            if k in HIDDEN_ARGS:
+                continue
+            return (v, )
+        logger.warning(f"No value assigned for key: {key}, inputs: {kwargs}")
+
+    return None
+
 
 class From:
     @classmethod
@@ -77,16 +108,15 @@ class From:
                 "optional" : {
                     "value": (any_typ, )
                 },
-                "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}}
+                # "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}
+            }
     
     FUNCTION = "run"
     RETURN_TYPES = (any_typ, )
-    RETURN_NAMES = ("value", )
+    RETURN_NAMES = ("*", )
 
-    def run(self, key, value=None, prompt=None, extra_pnginfo=None, unique_id=None):
-        if value is None:
-            logger.warning(f"No signal_opt assigned for key: {key}")
-        return (value, )
+    def run(self, key, **kwargs):
+        return run_getter(key, **kwargs)
     
 
 class ImageGetter:
@@ -96,17 +126,44 @@ class ImageGetter:
                 "optional" : {
                     "value": ("IMAGE", )
                 },
-                "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}}
+                # "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}
+                }
     
     FUNCTION = "run"
     RETURN_TYPES = ("IMAGE", )
-    RETURN_NAMES = ("value", )
+    RETURN_NAMES = ("*", )
 
-    def run(self, key, value=None, prompt=None, extra_pnginfo=None, unique_id=None):
-        if value is None:
-            logger.warning(f"No signal_opt assigned for key: {key}")
+    def run(self, key, **kwargs):
+        return run_getter(key, **kwargs)
+
+
+from .cache_data import CACHED_MAP
+
+
+class CachedGetter:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {"required": {"key": ("STRING", {"default": ""})},
+                "optional" : {
+                    "value": (any_typ, )
+                },
+                # "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"}
+                }
+    
+    FUNCTION = "run"
+    RETURN_TYPES = (any_typ, )
+    RETURN_NAMES = ("*", )
+    
+    def run(self, key, **kwargs):
+        cached_value = CACHED_MAP.get(key)
+        if cached_value is not None:
+            return (cached_value,)
+        
+        value = run_getter(key, **kwargs)[0]
+        logger.info(f"There is no cached data for {key}. Caching new data...")
+        CACHED_MAP[key] = value
         return (value, )
-
+        
 
 class FlowBuilder:
     @classmethod
@@ -126,3 +183,11 @@ class FlowBuilder:
     def run(self, value, prompt, extra_pnginfo, unique_id):
         return (value, )
     
+
+__all__ = [
+    "To",
+    "From",
+    "ImageGetter",
+    "CachedGetter",
+    "FlowBuilder",
+]

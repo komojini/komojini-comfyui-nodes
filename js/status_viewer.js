@@ -125,7 +125,7 @@ app.registerExtension({
             const gpuInfo = data.gpus[0];
             gpuTitleEl.innerHTML = getStyledText("GPU ", {color: "yellow"}) + "<br>" + `(${getStyledText(gpuInfo.name, {"font-size": "8pt"})})`;
 
-            gpuUsageEl.innerHTML =  `${getStyledText("Usage", nameStyle)}: ${getStyledText(gpuInfo.load * 100, {color: "white"})}${getStyledText("%", {color: "white"})}`;
+            gpuUsageEl.innerHTML =  `${getStyledText("Usage", nameStyle)}: ${getStyledText(Math.round(gpuInfo.load * 100), {color: "white"})}${getStyledText("%", {color: "white"})}`;
 
             gpuMemoryUsageEl.innerHTML = `${getStyledText("VRAM", nameStyle)}: 
                 ${getStyledText(Math.round(gpuInfo.memoryTotal * gpuInfo.memoryUtil / 10) * 10 / 1000, {color: "white"})} / 
@@ -158,7 +158,7 @@ app.registerExtension({
 
         // Fetch system status initially and every 1 seconds
         fetchSystemStatus();
-        setInterval(fetchSystemStatus, 1000);
+        setInterval(fetchSystemStatus, 500);
     },
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
 

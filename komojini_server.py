@@ -10,6 +10,12 @@ from .nodes.utils import is_url, get_sorted_dir_files_from_directory, ffmpeg_pat
 from comfy.k_diffusion.utils import FolderOfImages
 import nodes
 
+DEBUG = True
+
+from pprint import pprint
+
+def print_info(info):
+    pprint(f"🔥 - {info}")
 
 web = server.web
 
@@ -205,23 +211,30 @@ async def get_path(request):
 
     return web.json_response(valid_items)
 
+def is_prompt_node_type_of(node_value, node_type: str) -> bool:
+    return node_type in node_value.get("class_type", "") or node_type in node_value.get("_meta", {}).get("tile", "")
+
+def is_workflow_node_type_of(node_value, node_type: str) -> bool:
+    return node_type in node_value.get("type", "")
+
 def test_prompt(json_data):
+    import json    
+    
+    try:
+        with open(".custom_nodes/komojini-comfyui-nodes/json_data", "w") as json_file:
+            json_str = json.dumps(json_data, indent=4)
+            json.dump(json_data, json_file)
+    except Exception as e:
+        print_info("Failed to save json data.")
+        pass
+
+    print_info("Got prompt")
+
     prompt = json_data['prompt']
     print(f"len(prompt): {len(prompt)}")
-    max_print = 100
-    cur_print = 0
-    for k, v in prompt.items():
-        inputs = v.get("inputs")
-        class_type = v.get("class_type")
 
-        for input_k, input_v in inputs.items():
-            if isinstance(input_v, list) and len(input_v) == 2:
-                from_k = input_v[0]
 
-        cur_print += 1
-        if cur_print >= max_print:
-            break
-
+from .nodes.cache_data import CACHED_MAP
 
 def search_setter_getter_connected_nodes(json_data):
     key_to_getter_node_ids = {}
@@ -233,16 +246,103 @@ def search_setter_getter_connected_nodes(json_data):
             class_type: str = v["class_type"]
             inputs = v["inputs"]
             
-            if class_type.endswith("Getter"):
+            if is_prompt_node_type_of(v, "Get"):
                 key = inputs["key"]
+
+                if key and class_type.endswith("CachedGetter") and CACHED_MAP.get(key, None) is not None:
+                    continue
+
                 if key in key_to_getter_node_ids:
                     key_to_getter_node_ids[key].append(node_id)
                 else:
                     key_to_getter_node_ids[key] = [node_id]
-            elif class_type.endswith("Setter"):
+            elif is_prompt_node_type_of(v, "Set"):
                 key = inputs["key"]
                 key_to_setter_node_id[key] = node_id
-    
+    return key_to_getter_node_ids, key_to_setter_node_id
+ 
+
+def search_setter_getter_from_workflow(json_data):
+    key_to_getter_node_ids = {}
+    key_to_setter_node_id = {}
+
+    workflow = json_data["extra_data"]["extra_pnginfo"]["workflow"]
+    last_node_id = workflow["last_node_id"]
+    last_link_id = workflow["last_link_id"]
+    nodes = workflow["nodes"]
+    links = workflow["links"]
+    prompt = json_data["prompt"]
+
+    not_included_nodes_count = 0
+    for node in nodes:
+        # if node["id"] in prompt:
+        #     continue
+        if node["mode"] == 0 and node["id"] not in prompt:
+            # print_info(f"node not in prompt. node: {node}")
+            not_included_nodes_count += 1
+            inputs = node.get("inputs", [])
+            widget_values = node.get("widget_values")
+
+            # {"name": "", "type": "", "link": 320}
+            # prompt[node["id"]] = {
+            #     "inputs": {
+                    
+            #     },
+            #     "class_type": node["type"],
+            #     "_meta": {
+            #         "title": node[""],
+            #     }
+            # }
+        if node.get("type", "").endswith("Setter"):
+            key = node["widgets_values"][0]
+        elif node.get("type", "").endswith("Getter"):
+            key = node["widgets_values"][0]
+
+
+        """
+        {
+            "id": 173,
+            "type": "JsSetter",
+            "pos": [
+                6196,
+                9558
+            ],
+            "size": {
+                "0": 210,
+                "1": 58
+            },
+            "flags": {},
+            "order": 115,
+            "mode": 0,
+            "inputs": [
+                {
+                    "name": "IMAGE",
+                    "type": "IMAGE",
+                    "link": 235
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "IMAGE",
+                    "type": "IMAGE",
+                    "links": [
+                        236
+                    ],
+                    "slot_index": 0
+                }
+            ],
+            "title": "Set_STEERABLE_IMAGES",
+            "properties": {
+                "previousName": "STEERABLE_IMAGES"
+            },
+            "widgets_values": [
+                "STEERABLE_IMAGES"
+            ],
+            "color": "#2a363b",
+            "bgcolor": "#3f5159"
+        },
+        """
+    print_info(f"{not_included_nodes_count} Nodes not included in prompt but is activated")
     return key_to_getter_node_ids, key_to_setter_node_id
 
 
@@ -252,10 +352,18 @@ def connect_to_from_nodes(json_data):
     for getter_key, getter_node_ids in key_to_getter_node_ids.items():
         if getter_key in key_to_setter_node_id:
             setter_node_id = key_to_setter_node_id[getter_key]
+
             for getter_node_id in getter_node_ids:
-                print(f"Connect node with getter: {getter_node_id}, setter: {setter_node_id}, with key: {getter_key}")
+                # if "*" in prompt[getter_node_id]["inputs"]:
+                prompt[getter_node_id]["inputs"]["*"] = [setter_node_id, 0]
+                # elif "value" in prompt[getter_node_id]["inputs"]:
                 prompt[getter_node_id]["inputs"]["value"] = [setter_node_id, 0]
+                # else:
+                #     print(f"[WARN] Komojini-ComfyUI-CustonNodes: There is no 'Setter' node in the workflow for key: {getter_key}, inputs: {prompt[getter_node_id]['inputs']}")
+
                 print(f"Connected getter {getter_node_id}: {json_data['prompt'][getter_node_id]}")
+            if setter_node_id not in prompt:
+                print(f"[WARN] setter node id for key({getter_key}) not in prompt, setter_node_id: {setter_node_id}")
         else:
             print(f"[WARN] Komojini-ComfyUI-CustonNodes: There is no 'Setter' node in the workflow for key: {getter_key}")
     
@@ -277,11 +385,11 @@ def workflow_update(json_data):
 def on_prompt_handler(json_data):
     try:
         test_prompt(json_data)
-        workflow_update(json_data)
+        search_setter_getter_from_workflow(json_data)
         connect_to_from_nodes(json_data)
 
     except Exception as e:
-        print(f"[WARN] Komojini-ComfyUI-CustomNodes: Error on prompt\n{e}")
+        print_info(f"[WARN] Komojini-ComfyUI-CustomNodes: Error on prompt\n{e}")
     return json_data
 
 server.PromptServer.instance.add_on_prompt_handler(on_prompt_handler)

@@ -824,8 +824,6 @@ app.ui.settings.addSetting({
 app.registerExtension({
     name: "komojini.core",
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
-        console.info("beforeRegisterNodeDef starting... nodeData?.name:", nodeData?.name);
-
         if (nodeData?.name?.startsWith("Ultimate")) {
             useKVState(nodeType);
             chainCallback(nodeType.prototype, "onNodeCreated", function () {
