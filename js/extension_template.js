@@ -3,7 +3,7 @@ import { app } from "../../scripts/app.js";
 import * as shared from "./comfy_shared.js";
 
 
-class DragNUWAImageCanvas extends LiteGraph.LGraghNode {
+class DragNUWAImageCanvas extends LiteGraph.LGraphNode {
     title = "DragNUWACanvas"
     category = "komojini/image"
 
@@ -104,4 +104,4 @@ const komojiniCanvas = {
     },
 }
 
-app.registerExtension(komojiniCanvas)
+// app.registerExtension(komojiniCanvas)

@@ -17,6 +17,7 @@ NODE_CLASS_MAPPINGS = {
     "Getter": From,
     "ImageGetter": ImageGetter,
     "FlowBuilder": FlowBuilder,
+    "FlowBuilderSetter": FlowBuilderSetter,
     "CachedGetter": CachedGetter,
     "DragNUWAImageCanvas": DragNUWAImageCanvas,
 }
@@ -33,6 +34,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "CachedGetter": "CachedGetter",
     "ImageGetter": "ImageGetter",
     "FlowBuilder": END_EMOJI + " FlowBuilder",   
+    "FlowBuilderSetter": END_EMOJI + "FlowBuilderSetter",
     "DragNUWAImageCanvas": "DragNUWAImageCanvas",
 }
 

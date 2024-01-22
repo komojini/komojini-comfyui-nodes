@@ -219,7 +219,10 @@ export function setColorAndBgColor(type) {
         "FLOAT": LGraphCanvas.node_colors.green,
 		"MASK": LGraphCanvas.node_colors.cyan,
 		"INT": { color: "#1b4669", bgcolor: "#29699c"},
-        "*": { color: "#453e2c", bgcolor: "#756d58"},
+        "CONDITIONING": { color: "#4F200D", bgcolor: "#FF8400",},
+        "CLIP": { color: "#898121", bgcolor: "#E7B10A",},
+        
+        "*": { color: "#d4a828", bgcolor: "#756d58"},
     };
 
     const nameColorMap = {

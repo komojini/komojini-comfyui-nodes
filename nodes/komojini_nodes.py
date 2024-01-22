@@ -58,6 +58,8 @@ def collect_non_reroute_nodes(node_map, links, res, node_id):
             next_node_id = str(links[link][2])
             collect_non_reroute_nodes(node_map, links, res, next_node_id)
 
+from .cache_data import CACHED_MAP
+
 
 class To:
     @classmethod
@@ -81,7 +83,8 @@ class To:
             logger.warning(f"No value assigned for key: {key}, inputs: {kwargs}")
 
             value = next(iter(kwargs.values()))
-
+        
+        CACHED_MAP[key] = value;
         return (value, )
 
 
@@ -137,9 +140,6 @@ class ImageGetter:
         return run_getter(key, **kwargs)
 
 
-from .cache_data import CACHED_MAP
-
-
 class CachedGetter:
     @classmethod
     def INPUT_TYPES(cls):
@@ -183,6 +183,38 @@ class FlowBuilder:
     def run(self, value, prompt, extra_pnginfo, unique_id):
         return (value, )
 
+
+class FlowBuilderSetter:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "value": (any_typ,),
+                "key": ("STRING", {"default": ""}),
+            },
+            "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"},
+        }
+    
+    FUNCTION = "run"
+    RETURN_TYPES = (any_typ,)
+    RETURN_NAMES = ("value",)
+    CATEGORY = "komojini/flow"
+
+    def run(self, **kwargs):
+        key = kwargs.get("key")
+        
+        if "*" in kwargs:
+            value = kwargs["*"]
+        elif "value" in kwargs:
+            value = kwargs["value"]
+        else:
+            logger.warning(f"No value assigned for key: {key}, inputs: {kwargs}")
+
+            value = next(iter(kwargs.values()))
+        
+        CACHED_MAP[key] = value
+        return (value, )
+    
 
 from PIL import Image, ImageOps
 import torch
@@ -230,5 +262,6 @@ __all__ = [
     "ImageGetter",
     "CachedGetter",
     "FlowBuilder",
+    "FlowBuilderSetter",
     "DragNUWAImageCanvas",
 ]

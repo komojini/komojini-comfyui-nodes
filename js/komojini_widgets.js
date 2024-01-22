@@ -120,6 +120,34 @@ const komojini_widgets = {
     async beforeRegisterNodeDef(nodeType, nodeData, app) {
         const node = this;
 
+        const addFlowRunButton = function(node) {
+            const run_button = node.addWidget(
+                'button',
+                `Queue`,
+                'queue',
+                () => {
+                    app.canvas.setDirty(true);
+                    
+                    preview.value = 'Flow running...'
+                    return (async _ => {
+                        log('FlowBuilder Queue button pressed')
+                        app.graph._nodes.forEach((node) => {
+                            node.mode = 0;
+                        })
+                        await executeAndWaitForTargetNode(app, node);
+                        log('Queue finished')
+                        preview.value = 'Queue finished!'
+                        await new Promise(re => setTimeout(re, 1000));
+                    })();
+                }
+            )
+    
+            const preview = node.addCustomWidget(DEBUG_STRING('Preview', ''))
+            preview.parent = node
+    
+            return run_button;
+        }
+
         let has_custom = false;
         if (nodeData.input && nodeData.input.required) {
             for (const i of Object.keys(nodeData.input.required)) {
@@ -186,65 +214,13 @@ const komojini_widgets = {
         log("Start setting komojini extension", nodeData.name)
 
         // Extending Python Nodes
-        if (nodeData.name.startsWith('FlowBuilder' || nodeData.name.endsWith('FlowBuilder')) ) {
-                const onNodeCreated = nodeType.prototype.onNodeCreated
-                nodeType.prototype.onNodeCreated = function () {
-                    const r = onNodeCreated
-                      ? onNodeCreated.apply(this, arguments)
-                      : undefined
-                    
-                    this.changeMode(LiteGraph.ALWAYS);
-
-                    const onReset = () => {
-                        app.canvas.setDirty(true)
-                        preview.value = ''
-                    }
-                    // const reset_button = this.addWidget(
-                    //     'button',
-                    //     `Reset`,
-                    //     'reset',
-                    //     onReset
-                    // )
-
-                    const run_button = this.addWidget(
-                        'button',
-                        `Queue`,
-                        'queue',
-                        () => {
-                            onReset()
-                            preview.value = 'Flow running...'
-                            return (async _ => {
-                                log('FlowBuilder Queue button pressed')
-                                app.graph._nodes.forEach((node) => {
-                                    node.mode = 0;
-                                })
-                                await executeAndWaitForTargetNode(app, this);
-                                log('Queue finished')
-                                preview.value = 'Queue finished!'
-                                await new Promise(re => setTimeout(re, 1000));
-                            })();
-                        }
-                    )
-
-                    const preview = this.addCustomWidget(DEBUG_STRING('Preview', ''))
-                    preview.parent = this
-
-                    // preview.afterQueued = function() {
-                    //     preview.value = 'Flow running...'
-                    // }
-                    this.onRemoved = () => {
-                        shared.cleanupNode(this)
-                        app.canvas.setDirty(true)
-                    }
-
-                    return r;
-            }
-        } else if (nodeData.name.endsWith("Getter")) {
+        if (nodeData.name.endsWith("Getter")) {
             const onNodeCreated = nodeType.prototype.onNodeCreated
             nodeType.prototype.onNodeCreated = function () {
                 const r = onNodeCreated
                     ? onNodeCreated.apply(this, arguments)
                     : undefined;
+                
                 
                 var nameSuffix = "";
                 if (nodeData.name.includes("Cache")) {
@@ -324,12 +300,15 @@ const komojini_widgets = {
                         "previousName": "",
                     };
                 }
+
                 this.defaultVisibility = true;
                 this.serialize_widgets = true;
                 this.properties.showOutputText = true;
 
                 this.widgets = [];
                 this.inputs = [];
+
+                
 
                 this.addInput("value", "*");
 
@@ -340,13 +319,21 @@ const komojini_widgets = {
                     (s, t, u, v, x) => {
                         // node.validateName(node.graph);
                         if(this.widgets[0].value !== ''){
-                            this.title = "Set_" + this.widgets[0].value;
+                            var preFix = ""
+                            if (nodeData.name.includes("Flow")) {
+                                preFix = "🔥 "
+                            }
+                            this.title = preFix + "Set_" + this.widgets[0].value;
                         }
                         this.update();
                         this.properties.previousName = this.widgets[0].value;
                     }, 
                     {}
                 )
+
+                if (nodeData.name.includes("FlowBuilder")) {
+                    addFlowRunButton(this);
+                }
 
                 this.findGetters = function(graph, checkForPreviousName) {
                     const name = checkForPreviousName ? this.properties.previousName : this.widgets[0].value;
@@ -357,33 +344,38 @@ const komojini_widgets = {
                     if (!node.graph) {
                         return;
                     }
-                
-                    const getters = this.findGetters(node.graph);
-                    getters.forEach(getter => {     
-                        if (getter.setType) {      
-                            getter.setType?.(this.inputs[0].type);
-                        } else {
-                            setTypeOtherNode(getter, this.inputs[0].type);
-                        }
-                    });
-                
-                    if (this.widgets[0].value) {
-                        const gettersWithPreviousName = this.findGetters(node.graph, true);
-                        gettersWithPreviousName.forEach(getter => {
-                            if (getter.setName) {
-                                getter.setName(this.widgets[0].value);
+                    
+                    try {
+                        const getters = this.findGetters(node.graph);
+                        getters.forEach(getter => {     
+                            if (getter.setType) {      
+                                getter.setType?.(this.inputs[0].type);
                             } else {
-                                getter.widgets[0].value = this.widgets[0].value; 
+                                setTypeOtherNode(getter, this.inputs[0].type);
                             }
                         });
-                    }
-                
-                    const allGetters = node.graph._nodes.filter(otherNode => otherNode.type === "GetNode");
-                    allGetters.forEach(otherNode => {
-                        if (otherNode.setComboValues) {
-                            otherNode.setComboValues();
+                    
+                        if (this.widgets[0].value) {
+                            const gettersWithPreviousName = this.findGetters(node.graph, true);
+                            gettersWithPreviousName.forEach(getter => {
+                                
+                                if (getter.setName ) {
+                                    getter.setName(this.widgets[0].value);
+                                } else {
+                                    getter.widgets[0].value = this.widgets[0].value; 
+                                }
+                            });
                         }
-                    });
+                    
+                        const allGetters = node.graph._nodes.filter(otherNode => otherNode.type === "GetNode");
+                        allGetters.forEach(otherNode => {
+                            if (otherNode.setComboValues) {
+                                otherNode.setComboValues();
+                            }
+                        });
+                    } catch (error) {
+                        console.error(`Failed to update Setter: ${error}`)
+                    }
                 }
 
                 this.validateName = function(graph) {
@@ -420,62 +412,65 @@ const komojini_widgets = {
                     link_info,
                     output
                 ) {
-                    console.log(slotType, slot, isChangeConnect, link_info, output);
-                    //On Disconnect
-                    if (slotType == 1 && !isChangeConnect) {
-                        if(this.inputs[slot].name === ''){
-                            this.inputs[slot].type = '*';
-                            // this.inputs[slot].name = 'value';
-                            this.title = "Setter"
+                    console.log(`Setter node connection`)
+                    try {
+                        //On Disconnect
+                        if (slotType == 1 && !isChangeConnect) {
+                            if(this.inputs[slot].name === ''){
+                                this.inputs[slot].type = '*';
+                                // this.inputs[slot].name = 'value';
+                                this.title = "Setter"
+                            }
+                        }
+                        if (slotType == 2 && !isChangeConnect) {
+                            this.outputs[slot].type = '*';
+                            this.outputs[slot].name = '*';
+                            
+                        }	
+                        //On Connect
+                        if (link_info && node.graph && slotType == 1 && isChangeConnect) {
+                            console.log("setternode connected");
+                            const fromNode = node.graph._nodes.find((otherNode) => otherNode.id == link_info.origin_id);
+                            
+                            if (fromNode && fromNode.outputs && fromNode.outputs[link_info.origin_slot]) {
+                                const type = fromNode.outputs[link_info.origin_slot].type;
+                            
+                                if (this.title === "Setter" && nodeData.name == "Setter"){
+                                    this.title = "Set_" + type;	
+                                }
+                                if (this.widgets[0].value === '*'){
+                                    this.widgets[0].value = type	
+                                }
+                                
+                                this.validateName(node.graph);
+                                this.inputs[0].type = type;
+                                // this.inputs[0].name = type;
+                                
+                                if (app.ui.settings.getSettingValue("komojini.NodeAutoColor")){
+                                    setColorAndBgColor.call(this, type);	
+                                }
+                            } else {
+                                alert("Error: Set node input undefined. Most likely you're missing custom nodes");
+                            }
+                        }
+                        if (link_info && node.graph && slotType == 2 && isChangeConnect) {
+                            const fromNode = node.graph._nodes.find((otherNode) => otherNode.id == link_info.origin_id);
+                            
+                            if (fromNode && fromNode.inputs && fromNode.inputs[link_info.origin_slot]) {
+                                const type = fromNode.inputs[link_info.origin_slot].type;
+                                
+                                this.outputs[0].type = type;
+                                // this.outputs[0].name = type;
+                            } else {
+                                alert("Error: Get Set node output undefined. Most likely you're missing custom nodes");
+                            }
                         }
                     }
-                    if (slotType == 2 && !isChangeConnect) {
-                        this.outputs[slot].type = '*';
-                        this.outputs[slot].name = '*';
-                        
-                    }	
-                    //On Connect
-                    if (link_info && node.graph && slotType == 1 && isChangeConnect) {
-                        console.log("setternode connected");
-                        const fromNode = node.graph._nodes.find((otherNode) => otherNode.id == link_info.origin_id);
-                        
-                        if (fromNode && fromNode.outputs && fromNode.outputs[link_info.origin_slot]) {
-                            const type = fromNode.outputs[link_info.origin_slot].type;
-                        
-                            if (this.title === "Setter"){
-                                this.title = "Set_" + type;	
-                            }
-                            if (this.widgets[0].value === '*'){
-                                this.widgets[0].value = type	
-                            }
-                            
-                            this.validateName(node.graph);
-                            this.inputs[0].type = type;
-                            // this.inputs[0].name = type;
-                            
-                            if (app.ui.settings.getSettingValue("komojini.NodeAutoColor")){
-                                setColorAndBgColor.call(this, type);	
-                            }
-                        } else {
-                            alert("Error: Set node input undefined. Most likely you're missing custom nodes");
-                        }
+                    catch (error) {
+                        console.error(`Error onConnectionChange in Setter ${error}`)
                     }
-                    if (link_info && node.graph && slotType == 2 && isChangeConnect) {
-                        const fromNode = node.graph._nodes.find((otherNode) => otherNode.id == link_info.origin_id);
-                        
-                        if (fromNode && fromNode.inputs && fromNode.inputs[link_info.origin_slot]) {
-                            const type = fromNode.inputs[link_info.origin_slot].type;
-                            
-                            this.outputs[0].type = type;
-                            // this.outputs[0].name = type;
-                        } else {
-                            alert("Error: Get Set node output undefined. Most likely you're missing custom nodes");
-                        }
-                    }
-
-
                     //Update either way
-                    this.update();
+                    // this.update();
                 }
 
                 this.clone = function () {
@@ -502,7 +497,61 @@ const komojini_widgets = {
 
                 return r;
             }
-        }
+        } else if (nodeData.name.startsWith('FlowBuilder' || nodeData.name.endsWith('FlowBuilder')) ) {
+                const onNodeCreated = nodeType.prototype.onNodeCreated
+                nodeType.prototype.onNodeCreated = function () {
+                    const r = onNodeCreated
+                      ? onNodeCreated.apply(this, arguments)
+                      : undefined
+                    
+                    this.changeMode(LiteGraph.ALWAYS);
+
+                    const onReset = () => {
+                        app.canvas.setDirty(true)
+                        preview.value = ''
+                    }
+                    // const reset_button = this.addWidget(
+                    //     'button',
+                    //     `Reset`,
+                    //     'reset',
+                    //     onReset
+                    // )
+
+                    const run_button = this.addWidget(
+                        'button',
+                        `Queue`,
+                        'queue',
+                        () => {
+                            app.canvas.setDirty(true);
+                            
+                            preview.value = 'Flow running...'
+                            return (async _ => {
+                                log('FlowBuilder Queue button pressed')
+                                app.graph._nodes.forEach((node) => {
+                                    node.mode = 0;
+                                })
+                                await executeAndWaitForTargetNode(app, this);
+                                log('Queue finished')
+                                preview.value = 'Queue finished!'
+                                await new Promise(re => setTimeout(re, 1000));
+                            })();
+                        }
+                    )
+
+                    const preview = this.addCustomWidget(DEBUG_STRING('Preview', ''))
+                    preview.parent = this
+
+                    // preview.afterQueued = function() {
+                    //     preview.value = 'Flow running...'
+                    // }
+                    this.onRemoved = () => {
+                        shared.cleanupNode(this)
+                        app.canvas.setDirty(true)
+                    }
+
+                    return r;
+            }
+        } 
     },
     nodeCreated(node, app) {
         if (node.comfyClass == "DragNUWAImageCanvas") {
