@@ -17,4 +17,5 @@ __all__ = [
     "ImageGetter",
     "FlowBuilder",
     "CachedGetter",
+    "DragNUWAImageCanvas",
 ]

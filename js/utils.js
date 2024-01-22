@@ -222,11 +222,32 @@ export function setColorAndBgColor(type) {
         "*": { color: "#453e2c", bgcolor: "#756d58"},
     };
 
+    const nameColorMap = {
+        "ksampler": { color: "820300", bgcolor: "B80000"},
+        "controlnet": { color: "FF9800", bgcolor: "5F8670"},
+        "ipadapter": { color: "3E3232", bgcolor: "503C3C"},
+        "checkpoint": { color: "2D3250", bgcolor: "424769"},
+        "lora": {color: "C499F3" , bgcolor: "7360DF"},
+    }
+
     const colors = colorMap[type];
     if (colors) {
         this.color = colors.color;
         this.bgcolor = colors.bgcolor;
     } else {
         // Handle the default case if needed
+        const name = this.type.toLowerCase?.();
+
+        if (!name) {
+            return;
+        }
+        for (let [key, value] of Object.entries(nameColorMap)) {
+            if (name.includes(key)) {
+                this.color = value.color;
+                this.bgcolor = value.bgcolor
+                console.log(name, key);
+                return;
+            }
+        }
     }
 }

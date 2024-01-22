@@ -13,6 +13,44 @@ const END_EMOJI = '🔥';
 
 const newTypes = [ 'BUTTON']
 
+// function canvasToImg(canvas) {
+// 	let base64String = canvas.toDataURL('image/png');
+// 	let img = new Image();
+// 	img.src = base64String;
+// }
+
+
+function drawArrow(x1, y1, x2, y2, ctx) {
+    // Calculate the arrow direction
+    const direction = Math.atan2(y2 - y1, x2 - x1);
+
+    // Draw a line
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Draw arrowhead
+    const arrowheadSize = 10;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(
+      x2 - arrowheadSize * Math.cos(direction - Math.PI / 6),
+      y2 - arrowheadSize * Math.sin(direction - Math.PI / 6)
+    );
+    ctx.lineTo(
+      x2 - arrowheadSize * Math.cos(direction + Math.PI / 6),
+      y2 - arrowheadSize * Math.sin(direction + Math.PI / 6)
+    );
+    ctx.closePath();
+    ctx.fill();
+}
+
+function getLast(array) {
+    return array[array.length -1]
+}
+
+
 const komojini_widgets = {
     name: 'komojini.widgets',
 
@@ -30,7 +68,14 @@ const komojini_widgets = {
         }
     },
 
-    setup: () => {},
+    setup: () => {
+        app.ui.settings.addSetting({
+            id: "komojini.NodeAutoColor",
+            name: "🔥 Auto color nodes by name & output type",
+            type: "boolean",
+            defaultValue: false,
+        });
+    },
 
     getCustomWidgets: function() {
         return {
@@ -248,7 +293,7 @@ const komojini_widgets = {
 						this.setType(linkType);
 						this.title = "Get_" + setter.widgets[0].value + nameSuffix;
 						
-						if (app.ui.settings.getSettingValue("KJNodes.nodeAutoColor")){
+						if (app.ui.settings.getSettingValue("komojini.NodeAutoColor")){
 							setColorAndBgColor.call(this, linkType);	
 						}
 
@@ -408,7 +453,7 @@ const komojini_widgets = {
                             this.inputs[0].type = type;
                             // this.inputs[0].name = type;
                             
-                            if (app.ui.settings.getSettingValue("KJNodes.nodeAutoColor")){
+                            if (app.ui.settings.getSettingValue("komojini.NodeAutoColor")){
                                 setColorAndBgColor.call(this, type);	
                             }
                         } else {
@@ -457,8 +502,415 @@ const komojini_widgets = {
 
                 return r;
             }
+        }
+    },
+    nodeCreated(node, app) {
+        if (node.comfyClass == "DragNUWAImageCanvas") {
+            if (!node.properties) {
+                node.properties = {}
+            }
+
+            const sizes = [
+                "576x320",
+                "320x576",
+                "512x512",
+            ];
+
+            console.log(`DragNUWAImageCanvas Created`);
+                const w = findWidgetByName(node, "image");
+                const dragTextWidget = findWidgetByName(node, "tracking_points")
+
+                shared.hideWidgetForGood(node, w)
+                node.addWidget("button", "Get Drag Values", "", () => {
+                    openEditorDialog(node)
+                })
+                console.log(node)
+
+                Object.defineProperty(w, 'value', {
+                    set(v) {
+                        if(v != '[IMAGE DATA]' &&  v != "") {
+                            const img = new Image();
+                            img.onload = function() {
+                                console.log(`Set Image value of size(${img.width}x${img.height})`)
+                            }
+                            img.src = v;
+                            w._value = v;
+                        }
+                    },
+                    get() {
+                        const stackTrace = new Error().stack;
+                        if(!stackTrace.includes('draw') && !stackTrace.includes('graphToPrompt') && stackTrace.includes('app.js')) {
+                            return "[IMAGE DATA]";
+                        }
+                        else {
+                            return w._value;
+                        }
+                    },
+                });
+                Object.defineProperty(node.properties, "size", {
+                    set(v) {
+                        node.properties._size = v;
+                    },
+                    get() {
+                        if (node.properties._size) {
+                            return node.properties._size;
+                        } else {
+                            return ["576", "320"]
+                        }
+                    }
+                })
+
+                let drawOnCanvas = function(imageNode, canvasEl, size) {
+                    console.log(`start drawing on canvas size: ${size}`)
+                    if (!imageNode.width) {
+                        console.warn(`No Image node for updating canvas.`)
+                    }
+
+                    var ctx             
+                   
+                    var x=0, y=0, w=imageNode.width, h=imageNode.height;
+                    
+                    if (!size) {
+                        size = node.properties.size;
+                    }
+
+                    canvasEl.width = size[0]
+                    canvasEl.height = size[1]
+
+                    if (canvasEl.getContext) {
+                        ctx = canvasEl.getContext("2d")
+                    }
+                    else if (imageNode.width / imageNode.height > canvasEl.width/canvasEl.height) {
+                        y = 0;
+                        h = imageNode.height
+                        w = imageNode.height * canvasEl.width / canvasEl.height
+                        x = (imageNode.width - w) / 2
+                    } else {
+                        x = 0;
+                        w = imageNode.width
+                        h = imageNode.width * canvasEl.height / canvasEl.width
+                        y = (imageNode.height - h) / 2
+                    }
+                    ctx.drawImage(imageNode, x, y, w, h, 0, 0, canvasEl.width, canvasEl.height)
+                }
+
+                let set_img_act = (v) => {
+                    console.log(`set_img_act`)
+
+                    node._img = v;
+
+                };
+
+                Object.defineProperty(node, "imgs", {
+                    set(v) {                        
+                        if (!v[0].complete) {
+                            let orig_onload = v[0].onload;
+                            v[0].onload = function(v2) {
+                                if(orig_onload)
+                                    orig_onload();
+                                set_img_act(v);
+                            };
+                        }
+                        else {
+                            set_img_act(v);
+                        }
+                    },
+                    get() {
+                        if(node._img == undefined && w.value != '') {
+                            node._img = [new Image()];
+                            if(w.value && w.value != '[IMAGE DATA]')
+                                node._img[0].src = w.value;
+                        }
+    
+                        return node._img;
+                    }
+                });
+
+                if (!node.properties) {
+                    node.properties = {}
+                }
+
+                node.closeEditorDialog = function(accept) {
+                    node.dialog.is_opened = false;
+                    if (accept) {
+            
+                    }
+                    node.dialog.close()
+                }
+                
+                const openEditorDialog = function(node) {
+                    console.log(`Setup dialog`)
+
+
+                    node.dialog = new app.ui.dialog.constructor()
+                    node.dialog.element.classList.add('comfy-settings')
+                    node.dialog.is_opened = false;
+                    const closeButton = node.dialog.element.querySelector('button')
+                    closeButton.textContent = 'CANCEL'
+                    const saveButton = document.createElement('button')
+                    saveButton.textContent = 'SAVE'
+                    saveButton.onclick = () => {
+                        node.closeEditorDialog(true)
+                        _updateCanvas()
+                        console.log(dragTextWidget)
+                        node.imgs = [imageNode];
+                        dragTextWidget.value = JSON.stringify(node.properties.draglines)
+
+                        if (canvasEl) {
+                            const base64Img = canvasEl.toDataURL('image/png');
+                            w.value = base64Img;
+                        }
+                    }
+                    closeButton.onclick = () => {
+                        node.closeEditorDialog(false)
+                    }
+                    closeButton.before(saveButton)
+                    
+                    node.dialog.is_opened = true;
+                    node.properties.draglines = []
+                    node.properties.newline = true
+
+                    const container = document.createElement("div")
+                    
+                    Object.assign(container.style, {
+                        display: 'flex',
+                        gap: '10px',
+                        flexDirection: 'column',
+                      })
+            
+                    const imageNode =  document.createElement("img")
+                    if (node.imgs) {
+                        imageNode.src = node.imgs[0].src
+                        imageNode.width = node.imgs[0].width
+                        imageNode.height = node.imgs[0].height
+                    }
+                    imageNode.id = "canvasImage"
+
+            
+                    const canvasEl = document.createElement("canvas")
+                    canvasEl.id = "imageCanvas"
+                    Object.assign(canvasEl, {
+                        height: node.properties.size[1],
+                        width: node.properties.size[0],
+                        style: "border: 1px dotted gray; --darkreader-inline-border-top: #545b5e; --darkreader-inline-border-right: #545b5e; --darkreader-inline-border-bottom: #545b5e; --darkreader-inline-border-left: #545b5e;",
+                    })
+                    node.properties.canvas = canvasEl;
+                    container.append(canvasEl)
+                    
+            
+                    const _updateCanvas = () => {
+                        
+                        shared.infoLogger(`Change canvas size`)
+                        var ctx             
+                        // const canvasEl = document.getElementById("imageCanvas")
+                        // const imageNode = document.getElementById("canvasImage")
+
+
+
+                        if (canvasEl.getContext) {
+                            ctx = canvasEl.getContext("2d")
+                        }
+                
+                        var x=0, y=0, w=imageNode.width, h=imageNode.height;
+                        node.properties.size = document.getElementById("sizeSelector").value.split("x");
+                        const size = node.properties.size;
+                
+                        canvasEl.width = size[0]
+                        canvasEl.height = size[1]
+
+
+                        if (!imageNode.width) {
+                            console.warn(`No Image node for updating canvas.`)
+                        }
+
+                        else if (imageNode.width / imageNode.height > canvasEl.width/canvasEl.height) {
+                            y = 0;
+                            h = imageNode.height
+                            w = imageNode.height * canvasEl.width / canvasEl.height
+                            x = (imageNode.width - w) / 2
+                        } else {
+                            x = 0;
+                            w = imageNode.width
+                            h = imageNode.width * canvasEl.height / canvasEl.width
+                            y = (imageNode.height - h) / 2
+                        }
+                        ctx.drawImage(imageNode, x, y, w, h, 0, 0, canvasEl.width, canvasEl.height)
+
+                    }
+            
+            
+                    const draglineTextEl = document.createElement("textarea")
+                    draglineTextEl.id = "draglinetext"
+                    draglineTextEl.style.height = "auto";
+                    // draglineTextEl.style.height = draglineTextEl.scrollHeight + 'px'; // Set the height to the scrollHeight
+                    draglineTextEl.value = JSON.stringify(node.properties.draglines, null, 0)
+                    
+                
+                    canvasEl.addEventListener('mousedown', function(e) {
+                        // Get the mouse coordinates relative to the canvas
+                        const rect = canvasEl.getBoundingClientRect();
+                        const x = Math.round(e.clientX - rect.left);
+                        const y = Math.round(e.clientY - rect.top);
+                        
+
+                        // Now, you have the x, y position relative to the canvas
+                        console.log('Mouse Down at:', x, y);
+                      
+                        // Optionally, you can pass x and y to another function
+                        handleMouseDown(x, y);
+                    });
+                                
+                    function handleMouseDown(x, y) {
+                        // Do something with x and y, e.g., draw on the canvas
+                        var ctx             
+                        // const canvasEl = document.getElementById("imageCanvas")
+                        // const imageNode = document.getElementById("canvasImage")
+                
+                        if (canvasEl.getContext) {
+                            ctx = canvasEl.getContext("2d")
+                        }
+            
+                        shared.log(node)
+            
+                        
+                        if (node.properties.newline) {
+                            node.properties.draglines.push([[x, y]])
+                            node.properties.newline = false;
+            
+                            ctx.arc(x, y, 4, 0, 2 * Math.PI);
+                            ctx.fillStyle = 'red';
+                            ctx.fill();
+                        
+            
+                        } else {
+                            // node.properties.draglines 
+                            const prevDraglines = node.properties.draglines
+            
+                            const prevxy = getLast(getLast(prevDraglines))
+            
+                            node.properties.draglines[node.properties.draglines.length -1].push([x, y])
+                            drawArrow(prevxy[0], prevxy[1], x, y, ctx)
+                        }
+
+                        draglineTextEl.value = JSON.stringify(node.properties.draglines, null, 0)
+                    }
+                    
+                    const inputContainer = document.createElement("div")
+                    
+                    Object.assign(container.style, {
+                        display: 'flex',
+                        gap: '10px',
+                        flexDirection: 'column',
+                      })        
+            
+                    const sizeSelectorEl = document.createElement("select")
+                    sizeSelectorEl.id = "sizeSelector"
+                    let sizeOptions = "";
+                    sizes.forEach((size) => {
+                        const nodeSize = `${node.properties.size[0]}x${node.properties.size[1]}`;
+                        if (nodeSize == size) {
+                            sizeOptions += `<option value="${size}" selected>${size}</option>`
+                        } else {
+                            sizeOptions += `<option value="${size}">${size}</option>`
+                        }
+                        return sizeOptions
+                    })
+            
+                    sizeSelectorEl.insertAdjacentHTML("beforeend", sizeOptions)
+                                                                
+                    sizeSelectorEl.onchange = _updateCanvas
+            
+                    const imageInputEl = document.createElement("input")
+                    Object.assign(imageInputEl, {
+                        type: "file",
+                        id: "inputFile",
+                        accept: "image/*",
+                    })
+                    node.properties.imageNode = imageNode;
+            
+                    imageInputEl.onchange = function(e) {
+                        shared.infoLogger(`Image chosen`)
+                        var file = e.target.files[0];
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            shared.infoLogger(`Image onload 1`)
+                            // const imageNode = document.getElementById("canvasImage")
+                            
+                            var img = new Image();
+
+                            img.onload = function() {
+                                console.log(`Got image of size ${img.width}x${img.height}`)
+                                imageNode.width = img.width;
+                                imageNode.height = img.height;
+                                var ctx;
+                
+                                if (canvasEl.getContext) {
+                                    ctx = canvasEl.getContext("2d")
+                                }
+
+                                imageNode.src = e.target.result;
+                                imageNode.onload = function () {
+                                    shared.infoLogger(`Image onload 2`)
+
+                                    var x=0,y=0,w=node.width,h=node.height;
+                                    const size=document.getElementById("sizeSelector").value.split('x');
+                                    canvasEl.width=size[0];
+                                    canvasEl.height=size[1];
+                                    
+                                    refresh();
+                                };
+                            };
+                            img.src = e.target.result;
+                        };
+                        file && reader.readAsDataURL(file);            
+                    }
+                    
+                    const refresh  = () => {
+                        node.properties.newline = true;
+                        node.properties.draglines = []
+                        draglineTextEl.value = JSON.stringify(node.properties.draglines, null, 0)
+
+                        _updateCanvas()
+                    }
+                    const refreshButton = document.createElement("button");
+                    refreshButton.textContent = "Refresh"
+                    refreshButton.style.margin = "5px 10px"
+                    refreshButton.onclick = refresh;
+
+                    const newlineButton = document.createElement("button");
+                    newlineButton.textContent = "New Line"
+                    newlineButton.style.margin = "5px 10px"
+                    newlineButton.onclick = () => {
+                        node.properties.newline = true;
+                    }
+                    newlineButton.width = 100;
+
+            
+                    inputContainer.append(sizeSelectorEl)
+                    inputContainer.append(imageInputEl)
+            
+                    const controlContainer = document.createElement("div")
+            
+                    controlContainer.append(refreshButton) 
+                    controlContainer.append(newlineButton)
+            
+                    container.append(controlContainer)
+                    container.append(inputContainer)
+                
+                    node.dialog.show('')
+                    node.dialog.textElement.append(container)
+            
+                    container.append(draglineTextEl)
+
+                    _updateCanvas()
+                } 
+                
+                
+                shared.log(`Setup dialog`)
+
+            }
         } 
     }
-}
 
-app.registerExtension(komojini_widgets)
+
+app.registerExtension(komojini_widgets);

@@ -182,7 +182,47 @@ class FlowBuilder:
 
     def run(self, value, prompt, extra_pnginfo, unique_id):
         return (value, )
-    
+
+
+from PIL import Image, ImageOps
+import torch
+import base64
+from io import BytesIO
+import numpy as np
+
+
+class DragNUWAImageCanvas:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "image": ("STRING", {"default": "[IMAGE DATA]"}),
+                "tracking_points": ("STRING", {"default": "", "multiline": True})
+            }
+        }
+    FUNCTION = "run"
+    RETURN_TYPES = ("IMAGE", "STRING",)
+    RETURN_NAMES = ("image", "tracking_points",)
+    CATEGORY = "komojini/image"
+
+    def run(self, image, tracking_points, **kwargs):
+        logger.info(f"DragNUWA output of tracking points: {tracking_points}")
+        
+        # Extract the base64 string without the prefix
+        base64_string = image.split(",")[1]
+
+        # Decode base64 string to bytes
+        i = base64.b64decode(base64_string)
+
+        # Convert bytes to PIL Image
+        i = Image.open(BytesIO(i))
+
+        i = ImageOps.exif_transpose(i)
+        image = i.convert("RGB")
+        image = np.array(image).astype(np.float32) / 255.0
+        image = torch.from_numpy(image)[None,]
+        return (image, tracking_points, )
+
 
 __all__ = [
     "To",
@@ -190,4 +230,5 @@ __all__ = [
     "ImageGetter",
     "CachedGetter",
     "FlowBuilder",
+    "DragNUWAImageCanvas",
 ]

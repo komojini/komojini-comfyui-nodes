@@ -87,7 +87,7 @@ export class JsSetter {
 					this.inputs[0].type = type;
 					this.inputs[0].name = type;
 					
-					if (app.ui.settings.getSettingValue("KJNodes.nodeAutoColor")){
+					if (app.ui.settings.getSettingValue("komojini.NodeAutoColor")){
 						setColorAndBgColor.call(this, type);	
 					}
 				} else {
@@ -257,7 +257,7 @@ export class JsGetter {
 				this.setType(linkType);
 				this.title = "Get_" + setter.widgets[0].value;
 				
-				if (app.ui.settings.getSettingValue("KJNodes.nodeAutoColor")){
+				if (app.ui.settings.getSettingValue("komojini.NodeAutoColor")){
 					setColorAndBgColor.call(this, linkType);	
 				}
 
