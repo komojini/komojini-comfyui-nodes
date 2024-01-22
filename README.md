@@ -1,12 +1,24 @@
 # komojini-comfyui-nodes
 Custom ComfyUI Nodes for video generation
 
+- [ DragNUWA Image Canvas](#dragnuwaimagecanvas)
 - [ System Current Status Viewer](#statusviewer)
 - [ Flow Nodes](#flownodes)
 - [Getter & Setter Nodes](#gettersetternodes)
 - [ Video Loading Nodes](#videoloadingnodes)
   - [ Ultimate Video Loader](#ultimatevideoloader)
   - [ YouTube Video Loader](#youtubevideoloader)
+
+
+<a name="dragnuwaimagecanvas"></a>
+## DragNUWA Image Canvas
+![drag_preview](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/82d534c3-df36-46d1-ab16-ff9d3d166e5a)
+![7998A098-B97B-45F3-9CE2-3591AC3FFAB4](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/6ab3b14a-8995-4f11-8966-10740fc9eceb)
+
+Used for DragNUWA nodes witch is from: [https://github.com/chaojie/ComfyUI-DragNUWA](https://github.com/chaojie/ComfyUI-DragNUWA)
+
+DragNUWA main repo: https://github.com/ProjectNUWA/DragNUWA
+
 
 <a name="statusviewer"></a>
 ## System Current Status Viewer
