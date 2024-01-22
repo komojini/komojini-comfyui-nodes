@@ -31,7 +31,7 @@ function drawArrow(x1, y1, x2, y2, ctx) {
     ctx.stroke();
 
     // Draw arrowhead
-    const arrowheadSize = 10;
+    const arrowheadSize = 14;
     ctx.beginPath();
     ctx.moveTo(x2, y2);
     ctx.lineTo(
