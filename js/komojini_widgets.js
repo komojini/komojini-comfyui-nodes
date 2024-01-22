@@ -700,19 +700,19 @@ const komojini_widgets = {
             
                     const _updateCanvas = () => {
                         
-                        shared.infoLogger(`Change canvas size`)
+                        shared.infoLogger(`Update Dialog Canvas`)
+
                         var ctx             
                         // const canvasEl = document.getElementById("imageCanvas")
                         // const imageNode = document.getElementById("canvasImage")
-
-
 
                         if (canvasEl.getContext) {
                             ctx = canvasEl.getContext("2d")
                         }
                 
                         var x=0, y=0, w=imageNode.width, h=imageNode.height;
-                        node.properties.size = document.getElementById("sizeSelector").value.split("x");
+                        node.properties.size = sizeSelectorEl.value.split("x");
+                        // node.properties.size = document.getElementById("sizeSelector").value.split("x");
                         const size = node.properties.size;
                 
                         canvasEl.width = size[0]
