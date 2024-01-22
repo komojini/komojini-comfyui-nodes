@@ -142,6 +142,7 @@ def load_video_cv(
         **kwargs,
     ) -> Tuple[torch.Tensor, int, int, int, int]:
 
+    video_cap = None
     try:
         video_cap = cv2.VideoCapture(video)
         if not video_cap.isOpened():
@@ -149,7 +150,8 @@ def load_video_cv(
         images, frames_added, fps, width, height = process_video_cap(video_cap, start_sec, end_sec, frame_load_cap, max_fps)
     
     finally:
-        video_cap.release()
+        if video_cap:
+            video_cap.release()
     if len(images) == 0:
         raise RuntimeError("No frames generated")
     images = torch.cat(images, dim=0)
@@ -203,19 +205,21 @@ def download_youtube_video(
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
 
+    cap = None 
+
     try:
         yt = YouTube(youtube_url)
         stream = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
 
         video_path = stream.download(output_dir)
 
-
         cap = cv2.VideoCapture(video_path)
         images, frames_added, fps, width, height = process_video_cap(cap, start_sec, end_sec, frame_load_cap, max_fps)
     
     finally:
         # Release the video capture object
-        cap.release()
+        if cap:
+            cap.release()
     
     if len(images) == 0:
         raise RuntimeError("No frames generated")
