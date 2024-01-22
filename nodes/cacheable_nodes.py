@@ -115,3 +115,27 @@ class KSamplerAdvancedCacheable:
         kwargs = to_hashable(kwargs)
 
         return self.call(kwargs)
+
+
+CACHED_STRINGS = {}
+
+class TextCacheable:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "text": ("STRING", {"default": "", "multiline": True}),
+            },
+            "hidden": {"unique_id": "UNIQUE_ID"},
+        }
+    
+    FUNCTION = "call"
+    RETURN_TYPES = ("STRING", )
+    RETURN_NAMES = ("text", )
+    def call(self, text, unique_id=None):
+        if unique_id in CACHED_STRINGS:
+            CACHED_STRINGS[unique_id].append(text)
+        else:
+            CACHED_STRINGS[unique_id] = [text]
+
+        return (text, )

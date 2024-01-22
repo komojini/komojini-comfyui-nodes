@@ -25,11 +25,17 @@ export const findWidgetsByType = (node, type) => {
 export const getNodeByLink = (linkId, type) => app.graph.getNodeById(app.graph.links[linkId][type == "input" ? "origin_id" : "target_id"]);
 
 // node.title is visual title
-const isSetter = (node) => node.type.endsWith("Setter");
-const isGetter = (node) => node.type.endsWith("Getter");
 
-const isSetNode = (node) => node.type === "SetNode";
-const isGetNode = (node) => node.type === "GetNode";
+export function isGetter(node) {
+    return node.type === "GetNode" || node.type?.includes?.("Getter");
+}
+
+export function isSetter(node) {
+    return node.type === 'SetNode' || node.type?.includes?.("Setter");
+}
+
+export const isSetNode = (node) => node.type === "SetNode";
+export const isGetNode = (node) => node.type === "GetNode";
 
 function findSetterNode(key) {
     return app.graph._nodes.find((node) => isSetter(node) && findWidgetByName(node, "key").value === key);
@@ -200,4 +206,48 @@ export const DEBUG_STRING = (name, val) => {
     document.body.appendChild(w.inputEl)
 
     return w
+}
+
+export function setColorAndBgColor(type) {
+    const colorMap = {
+        "MODEL": LGraphCanvas.node_colors.blue,
+        "LATENT": LGraphCanvas.node_colors.purple,
+        "VAE": LGraphCanvas.node_colors.red,
+        "CONDITIONING": LGraphCanvas.node_colors.brown,
+        "IMAGE": LGraphCanvas.node_colors.pale_blue,
+        "CLIP": LGraphCanvas.node_colors.yellow,
+        "FLOAT": LGraphCanvas.node_colors.green,
+		"MASK": LGraphCanvas.node_colors.cyan,
+		"INT": { color: "#1b4669", bgcolor: "#29699c"},
+        "*": { color: "#453e2c", bgcolor: "#756d58"},
+    };
+
+    const nameColorMap = {
+        "ksampler": { color: "820300", bgcolor: "B80000"},
+        "controlnet": { color: "FF9800", bgcolor: "5F8670"},
+        "ipadapter": { color: "3E3232", bgcolor: "503C3C"},
+        "checkpoint": { color: "2D3250", bgcolor: "424769"},
+        "lora": {color: "C499F3" , bgcolor: "7360DF"},
+    }
+
+    const colors = colorMap[type];
+    if (colors) {
+        this.color = colors.color;
+        this.bgcolor = colors.bgcolor;
+    } else {
+        // Handle the default case if needed
+        const name = this.type.toLowerCase?.();
+
+        if (!name) {
+            return;
+        }
+        for (let [key, value] of Object.entries(nameColorMap)) {
+            if (name.includes(key)) {
+                this.color = value.color;
+                this.bgcolor = value.bgcolor
+                console.log(name, key);
+                return;
+            }
+        }
+    }
 }
