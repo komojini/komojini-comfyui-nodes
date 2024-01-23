@@ -148,7 +148,8 @@ const komojini_widgets = {
     
             const preview = node.addCustomWidget(DEBUG_STRING('Preview', ''))
             preview.parent = node
-
+            
+            
             return run_button;
         }
 
@@ -578,6 +579,7 @@ const komojini_widgets = {
                             otherNode.setComboValues([this]);
                         }
                     })
+                    shared.cleanupNode(this)
                 }
                 this.inputs[0].name = "value";
 
