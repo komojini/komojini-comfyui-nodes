@@ -172,6 +172,9 @@ class FlowBuilder:
             "required": {
                 "value": (any_typ, ),
             },
+            "optional": {
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 10000, "step": 1}),
+            },
             "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"},
         }
     
@@ -180,7 +183,7 @@ class FlowBuilder:
     RETURN_NAMES = ("value", )
     CATEGORY = "komojini/flow"
 
-    def run(self, value, prompt, extra_pnginfo, unique_id):
+    def run(self, value, **kwargs):
         return (value, )
 
 
@@ -191,6 +194,9 @@ class FlowBuilderSetter:
             "required": {
                 "value": (any_typ,),
                 "key": ("STRING", {"default": ""}),
+            },
+            "optional": {
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 10000, "step": 1}),
             },
             "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO", "unique_id": "UNIQUE_ID"},
         }
@@ -221,6 +227,7 @@ import torch
 import base64
 from io import BytesIO
 import numpy as np
+
 
 
 class DragNUWAImageCanvas:

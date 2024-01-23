@@ -5,7 +5,7 @@ import { api } from '../../scripts/api.js'
 
 import { log } from './comfy_shared.js'
 import * as shared from './comfy_shared.js'
-import { DEBUG_STRING, findWidgetByName, isSetter, isGetter, setColorAndBgColor } from './utils.js'
+import { DEBUG_STRING, findWidgetByName, isSetter, isGetter, setColorAndBgColor, enableOnlyRelatedNodes } from './utils.js'
 import { executeAndWaitForTargetNode } from './komojini.chain.js'
 
 
@@ -121,6 +121,11 @@ const komojini_widgets = {
         const node = this;
 
         const addFlowRunButton = function(node) {
+            const batchSizeWidget = findWidgetByName(node, "batch_size")
+            if (batchSizeWidget) {            
+                shared.hideWidgetForGood(node, batchSizeWidget)
+            }
+
             const run_button = node.addWidget(
                 'button',
                 `Queue`,
@@ -131,21 +136,99 @@ const komojini_widgets = {
                     preview.value = 'Flow running...'
                     return (async _ => {
                         log('FlowBuilder Queue button pressed')
-                        app.graph._nodes.forEach((node) => {
-                            node.mode = 0;
-                        })
+                    
                         await executeAndWaitForTargetNode(app, node);
                         log('Queue finished')
                         preview.value = 'Queue finished!'
-                        await new Promise(re => setTimeout(re, 1000));
+                        await new Promise(re => setTimeout(re, 1000)); 
+                    
                     })();
                 }
             )
     
             const preview = node.addCustomWidget(DEBUG_STRING('Preview', ''))
             preview.parent = node
-    
+
             return run_button;
+        }
+
+        const addAdvancedFlowWidgets = function(node) {
+            const batchSizeWidget = findWidgetByName(node, "batch_size")
+
+            const run_button = node.addWidget(
+                'button',
+                `Queue`,
+                'queue',
+                () => {
+                    app.canvas.setDirty(true);
+                    
+                    return (async _ => {
+                        log('FlowBuilder Queue button pressed')
+                        const style = "margin: 20 20"
+
+                        preview.value = `<div style="${style}"><p>Flow Starting...</p></div>`
+
+                        if (disableToggleWidget?.value) {
+                            try {
+                                await app.queuePrompt(0, 1);
+                                const promptId = await promptIdPromise; 
+                                await waitForQueueEnd(promptId);          
+                            } catch {
+                                console.error("Error while running queue")
+                            }
+                        
+                        } else {
+                            const totalBatchSize = batchSizeWidget.value;
+                            var currBatchSize = 0;
+                            while (autoQueueToggleWidget.value || currBatchSize < totalBatchSize) {
+                                if (autoQueueToggleWidget.value) {
+                                    preview.value = `<div style="${style}"><p>Auto Queue Running</p><br/></div>`
+                                    currBatchSize = totalBatchSize;
+                                } else {
+                                    currBatchSize += 1;
+                                    preview.value = `<div style="${style}"><p>${currBatchSize}/${totalBatchSize} Running...</p><br/><div>`
+                                }
+                                await executeAndWaitForTargetNode(app, node);
+                                log('Queue finished')
+                                await new Promise(re => setTimeout(re, 500)); 
+                            }
+                            preview.value = `<div style="${style}"><p>Queue finished!</p><br/></div>`
+
+                        }
+                    })();
+                }
+            )
+
+            const preview = node.addCustomWidget(DEBUG_STRING('Preview', ''))
+            preview.parent = node
+
+            const disableToggleWidget = node.addWidget("toggle", "Disable Unrelated Nodes", false, "", { "on": 'yes', "off": 'no' });
+
+            disableToggleWidget.doModeChange = (forceValue, skipOtherNodeCheck) => {
+                console.log(`toggle changed`)
+                
+                const toggleValue = disableToggleWidget.value;
+
+                if (toggleValue) {
+                    disableToggleWidget.notAlreadyMutedBlacklist = enableOnlyRelatedNodes(node)
+                } else if (disableToggleWidget.notAlreadyMutedBlacklist) {
+                    for (const node of disableToggleWidget.notAlreadyMutedBlacklist) node.mode = 0;
+                } else {
+                    app.graph._nodes.forEach((node) => {
+                        node.mode = 0;
+                    })
+                }
+            }
+            disableToggleWidget.callback = () => {
+                disableToggleWidget.doModeChange();
+            };
+
+            const autoQueueToggleWidget = node.addWidget("toggle", "Auto Queue", false, "", { "on": 'yes', "off": 'no' });
+
+
+            node.setSize(node.computeSize());
+
+
         }
 
         let has_custom = false;
@@ -332,7 +415,12 @@ const komojini_widgets = {
                 )
 
                 if (nodeData.name.includes("FlowBuilder")) {
-                    addFlowRunButton(this);
+
+                    if ( nodeData.name.includes("(adv)") ) {
+                        addAdvancedFlowWidgets(this);
+                    } else {
+                        addFlowRunButton(this);
+                    }
                 }
 
                 this.findGetters = function(graph, checkForPreviousName) {
@@ -506,44 +594,12 @@ const komojini_widgets = {
                     
                     this.changeMode(LiteGraph.ALWAYS);
 
-                    const onReset = () => {
-                        app.canvas.setDirty(true)
-                        preview.value = ''
+                    if ( nodeData.name.includes("(adv)") ) {
+                        addAdvancedFlowWidgets(this);
+                    } else {
+                        addFlowRunButton(this);
                     }
-                    // const reset_button = this.addWidget(
-                    //     'button',
-                    //     `Reset`,
-                    //     'reset',
-                    //     onReset
-                    // )
 
-                    const run_button = this.addWidget(
-                        'button',
-                        `Queue`,
-                        'queue',
-                        () => {
-                            app.canvas.setDirty(true);
-                            
-                            preview.value = 'Flow running...'
-                            return (async _ => {
-                                log('FlowBuilder Queue button pressed')
-                                app.graph._nodes.forEach((node) => {
-                                    node.mode = 0;
-                                })
-                                await executeAndWaitForTargetNode(app, this);
-                                log('Queue finished')
-                                preview.value = 'Queue finished!'
-                                await new Promise(re => setTimeout(re, 1000));
-                            })();
-                        }
-                    )
-
-                    const preview = this.addCustomWidget(DEBUG_STRING('Preview', ''))
-                    preview.parent = this
-
-                    // preview.afterQueued = function() {
-                    //     preview.value = 'Flow running...'
-                    // }
                     this.onRemoved = () => {
                         shared.cleanupNode(this)
                         app.canvas.setDirty(true)
