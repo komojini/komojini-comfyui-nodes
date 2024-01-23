@@ -41,11 +41,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ImageGetter": "ImageGetter",
     "FlowBuilder": END_EMOJI + " FlowBuilder",   
     "FlowBuilder (advanced)": END_EMOJI + "(adv) FlowBuilder", 
-    "FlowBuilder (adv)": END_EMOJI + "(adv) FlowBuilder",
+    # "FlowBuilder (adv)": END_EMOJI + "(adv) FlowBuilder",
 
     "FlowBuilderSetter": END_EMOJI + "FlowBuilderSetter",
     "FlowBuilder (advanced) Setter": END_EMOJI + "(adv) FlowBuilderSetter",
-    "FlowBuilderSetter (adv)": END_EMOJI + "(adv) FlowBuilder",
+    # "FlowBuilderSetter (adv)": END_EMOJI + "(adv) FlowBuilder",
 
     "DragNUWAImageCanvas": "DragNUWAImageCanvas",
 }

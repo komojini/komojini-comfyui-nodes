@@ -76,42 +76,6 @@ const komojini_widgets = {
             defaultValue: false,
         });
     },
-
-    getCustomWidgets: function() {
-        return {
-            // BOOL: (node, inputName, inputData, app) => {
-            //     console.debug('Registering bool')
-        
-            //     return {
-            //       widget: node.addCustomWidget(
-            //         MtbWidgets.BOOL(inputName, inputData[1]?.default || false)
-            //       ),
-            //       minWidth: 150,
-            //       minHeight: 30,
-            //     }
-            //   },
-        
-            //   COLOR: (node, inputName, inputData, app) => {
-            //     console.debug('Registering color')
-            //     return {
-            //       widget: node.addCustomWidget(
-            //         MtbWidgets.COLOR(inputName, inputData[1]?.default || '#ff0000')
-            //       ),
-            //       minWidth: 150,
-            //       minHeight: 30,
-            //     }
-            //   },
-              // BBOX: (node, inputName, inputData, app) => {
-              //     console.debug("Registering bbox")
-              //     return {
-              //         widget: node.addCustomWidget(MtbWidgets.BBOX(inputName, inputData[1]?.default || [0, 0, 0, 0])),
-              //         minWidth: 150,
-              //         minHeight: 30,
-              //     }
-        
-              // }
-        }
-    },
     /**
      * @param {import("./types/comfy").NodeType} nodeType
      * @param {import("./types/comfy").NodeDef} nodeData
@@ -169,33 +133,35 @@ const komojini_widgets = {
 
                         preview.value = `<div style="${style}"><p>Flow Starting...</p></div>`
 
-                        if (disableToggleWidget?.value) {
-                            try {
+                        try {
+                            if (disableToggleWidget?.value) {
                                 await app.queuePrompt(0, 1);
                                 const promptId = await promptIdPromise; 
                                 await waitForQueueEnd(promptId);          
-                            } catch {
-                                console.error("Error while running queue")
-                            }
                         
-                        } else {
-                            const totalBatchSize = batchSizeWidget.value;
-                            var currBatchSize = 0;
-                            while (autoQueueToggleWidget.value || currBatchSize < totalBatchSize) {
-                                if (autoQueueToggleWidget.value) {
-                                    preview.value = `<div style="${style}"><p>Auto Queue Running</p><br/></div>`
-                                    currBatchSize = totalBatchSize;
-                                } else {
-                                    currBatchSize += 1;
-                                    preview.value = `<div style="${style}"><p>${currBatchSize}/${totalBatchSize} Running...</p><br/><div>`
+                            } else {
+                                const totalBatchSize = batchSizeWidget.value;
+                                var currBatchSize = 0;
+                                while (autoQueueToggleWidget.value || currBatchSize < totalBatchSize) {
+                                    if (autoQueueToggleWidget.value) {
+                                        preview.value = `<div style="${style}"><p>Auto Queue Running</p><br/></div>`
+                                        currBatchSize = totalBatchSize;
+                                    } else {
+                                        currBatchSize += 1;
+                                        preview.value = `<div style="${style}"><p>${currBatchSize}/${totalBatchSize} Running...</p><br/><div>`
+                                    }
+                                    await executeAndWaitForTargetNode(app, node);
+                                    log('Queue finished')
+                                    await new Promise(re => setTimeout(re, 500)); 
                                 }
-                                await executeAndWaitForTargetNode(app, node);
-                                log('Queue finished')
-                                await new Promise(re => setTimeout(re, 500)); 
                             }
-                            preview.value = `<div style="${style}"><p>Queue finished!</p><br/></div>`
+                        } catch (error) {
+                            console.error(`Error while running queue: ${error}`)
 
+                        } finally {
+                            preview.value = `<div style="${style}"><p>Queue finished!</p><br/></div>`
                         }
+
                     })();
                 }
             )
@@ -407,7 +373,7 @@ const komojini_widgets = {
                             if (nodeData.name.includes("adv")) {
                                 preFix = "🔥(adv) "
                             }
-                            if (nodeData.name.includes("Flow")) {
+                            else if (nodeData.name.includes("Flow")) {
                                 preFix = "🔥 "
                             }
                             this.title = preFix + "Set_" + this.widgets[0].value;
