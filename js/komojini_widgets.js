@@ -404,6 +404,9 @@ const komojini_widgets = {
                         // node.validateName(node.graph);
                         if(this.widgets[0].value !== ''){
                             var preFix = ""
+                            if (nodeData.name.includes("adv")) {
+                                preFix = "🔥(adv) "
+                            }
                             if (nodeData.name.includes("Flow")) {
                                 preFix = "🔥 "
                             }
@@ -417,7 +420,7 @@ const komojini_widgets = {
 
                 if (nodeData.name.includes("FlowBuilder")) {
 
-                    if ( nodeData.name.includes("(adv)") ) {
+                    if ( nodeData.name.includes("adv") ) {
                         addAdvancedFlowWidgets(this);
                     } else {
                         addFlowRunButton(this);
@@ -596,9 +599,11 @@ const komojini_widgets = {
                     
                     this.changeMode(LiteGraph.ALWAYS);
 
-                    if ( nodeData.name.includes("(adv)") ) {
+                    if ( nodeData.name.includes("adv")) {
+                        console.log(`Advanced Flowbuilder added.`)
                         addAdvancedFlowWidgets(this);
                     } else {
+                        console.log(`Flowbuilder added.`)
                         addFlowRunButton(this);
                     }
 
