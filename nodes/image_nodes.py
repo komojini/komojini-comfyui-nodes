@@ -187,8 +187,8 @@ class ImageCropByRatioAndResize:
 
         image = image[:, y:y2, x:x2, :]
 
-
-        size_ratio = width_ratio_size / ow
+        width = width_ratio_size
+        height = height_ratio_size
 
         outputs = p(image)
         if interpolation == "lanczos":
