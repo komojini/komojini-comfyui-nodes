@@ -29,6 +29,7 @@ NODE_CLASS_MAPPINGS = {
 
     "ImageCropByRatio": ImageCropByRatio,
     "ImageCropByRatioAndResize": ImageCropByRatioAndResize,
+    "ImagesCropByRatioAndResizeBatch": ImagesCropByRatioAndResizeBatch,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -53,6 +54,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "DragNUWAImageCanvas": "DragNUWAImageCanvas",
     "ImageCropByRatio": "ImageCropByRatio",
     "ImageCropByRatioAndResize": "ImageCropByRatioAndResize",
+    "ImagesCropByRatioAndResizeBatch": "ImagesCropByRatioAndResizeBatch",
 }
 
 

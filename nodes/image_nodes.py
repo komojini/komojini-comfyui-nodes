@@ -13,6 +13,8 @@ import torchvision.transforms.v2 as T
 
 import comfy.utils
 
+from .logger import logger
+
 
 MAX_RESOLUTION = 8192
 
@@ -69,12 +71,13 @@ class ImageCropByRatio:
             width = target_ratio * height
         else:
             width = ow
-            height = target_ratio * width
+            height = width / target_ratio
 
-        width, height = int(width), int(height)
 
         x = round((ow - width) / 2)
         y = round((oh - height) / 2)
+        width, height = round(width), round(height)
+
 
         if "top" in position:
             y = 0
@@ -120,11 +123,11 @@ class ImageCropByRatioAndResize:
                 ),
                 "position": (
                     [
+                        "center",
                         "top",
                         "right",
                         "bottom",
                         "left",
-                        "center",
                     ],
                 ),
                 "interpolation": (["nearest", "bilinear", "bicubic", "area", "nearest-exact", "lanczos"],),                
@@ -151,18 +154,18 @@ class ImageCropByRatioAndResize:
         image_ratio = ow / oh
         target_ratio = width_ratio_size / height_ratio_size
 
+        
         if image_ratio > target_ratio:
             height = oh
             width = target_ratio * height
         else:
             width = ow
-            height = target_ratio * width
+            height = width / target_ratio
 
-        width, height = int(width), int(height)
 
-        # if "center" in position:
         x = round((ow - width) / 2)
         y = round((oh - height) / 2)
+        width, height = round(width), round(height)
 
         if "top" in position:
             y = 0
@@ -198,4 +201,41 @@ class ImageCropByRatioAndResize:
         outputs = pb(outputs)
 
         return(outputs, outputs.shape[2], outputs.shape[1],)
-    
+
+
+
+class ImagesCropByRatioAndResizeBatch(ImageCropByRatioAndResize):
+
+
+    FUNCTION = "list_execute"
+    INPUT_IS_LIST = True
+    OUTPUT_IS_LIST = (False, False, False,)
+
+    def list_execute(self, image, **kwargs):
+        logger.debug(f"{len(image)}, {kwargs}")
+
+        output_images = []
+        new_kwargs = {}
+        for k, v in kwargs.items():
+            if isinstance(v, list):
+                new_kwargs[k] = v[0]
+        
+        width, height = new_kwargs["width_ratio_size"], new_kwargs["height_ratio_size"]
+
+        for img in image:
+            output_img, width, height = super().execute(img, **new_kwargs)
+            output_images.append(output_img)
+
+        if len(output_images) <= 1:
+            return (output_images, width, height,)
+        
+        output_images = torch.cat(output_images, dim=0)
+
+        return (output_images, width, height, )
+
+
+__all__ = [
+    "ImageCropByRatio",
+    "ImageCropByRatioAndResize",
+    "ImagesCropByRatioAndResizeBatch",
+]

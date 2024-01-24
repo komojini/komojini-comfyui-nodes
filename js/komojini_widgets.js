@@ -100,7 +100,10 @@ const komojini_widgets = {
                     preview.value = 'Flow running...'
                     return (async _ => {
                         log('FlowBuilder Queue button pressed')
-                    
+                        // TODO: Should fix this by different solution
+                        app.graph._nodes.forEach((node) => {
+                            node.mode = 0;
+                        })
                         await executeAndWaitForTargetNode(app, node);
                         log('Queue finished')
                         preview.value = 'Queue finished!'
@@ -142,6 +145,10 @@ const komojini_widgets = {
                             } else {
                                 const totalBatchSize = batchSizeWidget.value;
                                 var currBatchSize = 0;
+                                // TODO: Should fix this by different solution
+                                app.graph._nodes.forEach((node) => {
+                                    node.mode = 0;
+                                })
                                 while (autoQueueToggleWidget.value || currBatchSize < totalBatchSize) {
                                     if (autoQueueToggleWidget.value) {
                                         preview.value = `<div style="${style}"><p>Auto Queue Running</p><br/></div>`
