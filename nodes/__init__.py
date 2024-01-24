@@ -4,7 +4,7 @@ from .cacheable_nodes import (
     KSamplerCacheable, 
     KSamplerAdvancedCacheable,
 )
-from .image_nodes import ImageCropByRatio
+from .image_nodes import ImageCropByRatio, ImageCropByRatioAndResize
 from .komojini_nodes import *
 
 __all__ = [
@@ -21,4 +21,5 @@ __all__ = [
     "CachedGetter",
     "DragNUWAImageCanvas",
     "ImageCropByRatio",
+    "ImageCropByRatioAndResize",
 ]
