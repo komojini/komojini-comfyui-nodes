@@ -71,6 +71,7 @@ class ImageCropByRatio:
             width = ow
             height = target_ratio * width
 
+        width, height = int(width), int(height)
 
         x = round((ow - width) / 2)
         y = round((oh - height) / 2)
@@ -156,6 +157,8 @@ class ImageCropByRatioAndResize:
         else:
             width = ow
             height = target_ratio * width
+
+        width, height = int(width), int(height)
 
         # if "center" in position:
         x = round((ow - width) / 2)
