@@ -26,6 +26,8 @@ NODE_CLASS_MAPPINGS = {
 
     "CachedGetter": CachedGetter,
     "DragNUWAImageCanvas": DragNUWAImageCanvas,
+
+    "ImageCropByRatio": ImageCropByRatio,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -48,6 +50,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     # "FlowBuilderSetter (adv)": END_EMOJI + "(adv) FlowBuilder",
 
     "DragNUWAImageCanvas": "DragNUWAImageCanvas",
+    "ImageCropByRatio": "ImageCropByRatio",
 }
 
 
