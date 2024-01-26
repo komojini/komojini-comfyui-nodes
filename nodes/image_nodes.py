@@ -227,7 +227,7 @@ class ImagesCropByRatioAndResizeBatch(ImageCropByRatioAndResize):
             output_images.append(output_img)
 
         if len(output_images) <= 1:
-            return (output_images, width, height,)
+            return (output_images[0], width, height,)
         
         output_images = torch.cat(output_images, dim=0)
 
