@@ -770,7 +770,6 @@ const komojini_widgets = {
                     node.properties.dialogOpened = true;
                     node.dialog = new app.ui.dialog.constructor()
 
-                    node.dialog.element.id = "drag-image-canvas";
                     // node.dialog.element.style.height = "90%";
                     // node.dialog.element.style.width = "90%";
                     // node.dialog.element.style.display = "block";
@@ -814,6 +813,18 @@ const komojini_widgets = {
                     node.properties.newline = true
 
                     const container = document.createElement("div")
+
+                    container.id = "drag-image-container";
+                    // container.style = "display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-around;"
+
+                    Object.assign(container.style, {
+                        display: 'flex',
+                        gap: '10px',
+                        // flexWrap: 'wrap',
+                        flexDirection: 'row',
+                        // justifyContent: 'space-around',
+                      })        
+
                     
                     // Object.assign(container.style, {
                     //     display: 'flex',
@@ -834,9 +845,9 @@ const komojini_widgets = {
                     canvasEl.id = "imageCanvas"
                     
                     Object.assign(canvasEl, {
-                        height: node.properties.size[1],
-                        width: node.properties.size[0],
-                        style: "border: 1px dotted gray; --darkreader-inline-border-top: #545b5e; --darkreader-inline-border-right: #545b5e; --darkreader-inline-border-bottom: #545b5e; --darkreader-inline-border-left: #545b5e;",
+                        height: `${node.properties.size[1]}px`,
+                        width: `${node.properties.size[0]}px`,
+                        style: "border: 1px dotted gray;",
                     })
                     
                     node.properties.canvas = canvasEl;
@@ -894,8 +905,8 @@ const komojini_widgets = {
             
                     const draglineTextEl = document.createElement("textarea")
                     draglineTextEl.id = "draglinetext"
-                    draglineTextEl.style.height = "auto";
                     // draglineTextEl.style.height = draglineTextEl.scrollHeight + 'px'; // Set the height to the scrollHeight
+                    draglineTextEl.readOnly = true;
 
                     function _undo() {
                         const newDraglines = [...node.properties.draglines];
@@ -941,12 +952,6 @@ const komojini_widgets = {
                         const rect = canvasEl.getBoundingClientRect();
                         const x = Math.round(e.clientX - rect.left);
                         const y = Math.round(e.clientY - rect.top);
-                        // var ctx             
-
-                        // if (canvasEl.getContext) {
-                        //     ctx = canvasEl.getContext("2d")
-                        // } 
-                        console.log("on mousemove");
 
                         var currentDraglines;
                         
@@ -958,9 +963,6 @@ const komojini_widgets = {
                             currentDraglines[currentDraglines.length -1] = [...prevDragline, [x, y]]
                         }
 
-                        // node.properties.draglines[node.properties.draglines.length -1].push([x, y])
-                        // drawLine(prevxy[0], prevxy[1], x, y, ctx)
-                        setTrackingPoints();
                         drawAllLines(node, currentDraglines, imageNode, canvasEl);
                         
                     }
@@ -1008,13 +1010,11 @@ const komojini_widgets = {
                     }
                     
                     const inputContainer = document.createElement("div")
-                    
-                    Object.assign(container.style, {
+                    Object.assign(inputContainer.style, {
                         display: 'flex',
                         gap: '10px',
                         flexDirection: 'column',
-                      })        
-            
+                    })
                     const sizeSelectorEl = document.createElement("select")
                     sizeSelectorEl.id = "sizeSelector"
                     let sizeOptions = "";
@@ -1104,26 +1104,41 @@ const komojini_widgets = {
                     newlineButton.onclick = setNewline;
                     newlineButton.width = 100;
 
-            
-                    inputContainer.append(sizeSelectorEl)
-                    inputContainer.append(imageInputEl)
-            
                     const controlContainer = document.createElement("div")
-            
+                    Object.assign(controlContainer.style, {
+                        display: "flex",
+                        flexDirection: "column",
+                    })
+
+                    const inputStyle = {
+                        padding: '5px',
+                        margin: '10px'
+                    };
+                    
+                    controlContainer.append(sizeSelectorEl)
+                    Object.assign(sizeSelectorEl.style, inputStyle)
+                    
+                    controlContainer.append(imageInputEl)
+                    Object.assign(imageInputEl.style, inputStyle)
+
                     controlContainer.append(refreshButton)
                     controlContainer.append(undoButton) 
                     controlContainer.append(newlineButton)
             
                     container.append(controlContainer)
-                    container.append(inputContainer)
+                    // container.append(inputContainer)
                 
                     node.dialog.show('')
                     node.dialog.textElement.append(container)
-            
-                    container.append(draglineTextEl)
+                    
+                    Object.assign(draglineTextEl.style, {
+                        flex: 1,
+                        margin: "20px",
+                    })
+                    controlContainer.append(draglineTextEl)
 
                     _refreshCanvas()
-                    node.properties.draglines = JSON.parse(dragTextWidget.value);
+                    node.properties.draglines = JSON.parse(dragTextWidget.value ?? "[]") ?? [];
                     setTrackingPoints();
                 } 
                 
