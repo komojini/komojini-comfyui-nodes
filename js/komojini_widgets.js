@@ -1121,9 +1121,9 @@ const komojini_widgets = {
                     controlContainer.append(imageInputEl)
                     Object.assign(imageInputEl.style, inputStyle)
 
-                    controlContainer.append(refreshButton)
-                    controlContainer.append(undoButton) 
                     controlContainer.append(newlineButton)
+                    controlContainer.append(undoButton) 
+                    controlContainer.append(refreshButton)
             
                     container.append(controlContainer)
                     // container.append(inputContainer)
