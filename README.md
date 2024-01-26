@@ -23,12 +23,16 @@ DragNUWA main repo: https://github.com/ProjectNUWA/DragNUWA
 
 <a name="flownodes"></a>
 ## Flow Nodes
-### FlowBuilder
-![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/97d7e0f0-7ed2-44af-929a-35e6cf3aa622)
-
 Flow node that ables to run only a part of the entire workflow.
 By using this, you will be able to generate images or videos "step by step"
 Add the "FlowBuilder" node right before the output node (PreviewImage, SaveImage, VideoCombine, etc.), then it will automatically parse only the nodes for generating that output.
+
+### FlowBuilder
+![image](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/97d7e0f0-7ed2-44af-929a-35e6cf3aa622)
+
+### FlowBuilderSetter
+
+### (advanced) Flowbuilder Nodes
 
 <a name="gettersetternodes"></a>
 ## Getter & Setter Nodes
