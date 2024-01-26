@@ -13,16 +13,74 @@ const END_EMOJI = '🔥';
 
 const newTypes = [ 'BUTTON']
 
-// function canvasToImg(canvas) {
-// 	let base64String = canvas.toDataURL('image/png');
-// 	let img = new Image();
-// 	img.src = base64String;
-// }
+const _drawImage = (node, imageNode, canvasEl, ctx) =>  {
+               
+    var x=0, y=0, w=imageNode.width, h=imageNode.height;
 
+    const size = node.properties.size;
+
+    canvasEl.width = size[0];
+    canvasEl.height = size[1];
+
+    canvasEl.style = `width: ${size[0]}px; height: ${size[1]}px;`
+    canvasEl.style.border = "1px dotted gray"
+    
+    if (!imageNode.width) {
+        return;
+    }
+
+    else if (imageNode.width / imageNode.height > canvasEl.width/canvasEl.height) {
+        y = 0;
+        h = imageNode.height
+        w = imageNode.height * canvasEl.width / canvasEl.height
+        x = (imageNode.width - w) / 2
+    } else {
+        x = 0;
+        w = imageNode.width
+        h = imageNode.width * canvasEl.height / canvasEl.width
+        y = (imageNode.height - h) / 2
+    }
+    ctx.drawImage(imageNode, x, y, w, h, 0, 0, canvasEl.width, canvasEl.height)
+}
+
+function drawAllLines(node, draglines, imageNode, canvas) {
+    var ctx
+
+    ctx = canvas.getContext("2d");
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    
+    _drawImage(node, imageNode, canvas, ctx);
+
+    for (const line of draglines) {
+        var prevX, prevY = null;
+        for (const pos of line) {
+            var newX = pos[0];
+            var newY = pos[1];
+            
+            if (prevX && prevY) {
+                drawArrow(prevX, prevY, newX, newY, ctx);
+            } else {
+                ctx.beginPath();
+                ctx.arc(newX, newY, 4, 0, 2 * Math.PI);
+                ctx.fillStyle = 'red';
+                ctx.fill(); 
+            }
+            prevX = newX;
+            prevY = newY;
+        }
+    }
+}
 
 function drawArrow(x1, y1, x2, y2, ctx) {
     // Calculate the arrow direction
     const direction = Math.atan2(y2 - y1, x2 - x1);
+
+    if (!(x1 && y1 && x2 && y2)) {
+        return;
+    } else if ((x1 == x2 && y1 == y2)) {
+        return;
+    }
 
     // Draw a line
     ctx.beginPath();
@@ -44,6 +102,7 @@ function drawArrow(x1, y1, x2, y2, ctx) {
     );
     ctx.closePath();
     ctx.fill();
+    
 }
 
 function getLast(array) {
@@ -358,14 +417,13 @@ const komojini_widgets = {
                     };
                 }
 
+
                 this.defaultVisibility = true;
                 this.serialize_widgets = true;
                 this.properties.showOutputText = true;
 
                 this.widgets = [];
                 this.inputs = [];
-
-                
 
                 this.addInput("value", "*");
 
@@ -606,11 +664,31 @@ const komojini_widgets = {
                 const dragTextWidget = findWidgetByName(node, "tracking_points")
 
                 shared.hideWidgetForGood(node, w)
+
                 node.addWidget("button", "Get Drag Values", "", () => {
                     openEditorDialog(node)
                 })
-                console.log(node)
 
+                console.log(node)
+                
+                Object.defineProperty(node.properties, "draglines", {
+                    set(v) {
+                        const newDraglines = [];
+
+                        for (var i = 0; i < v.length; i++) {
+                            if (i < v.length - 1 && v[i].length > 1) {
+                                newDraglines.push(v[i])
+                            } else if (i === v.length - 1) {
+                                newDraglines.push(v[i])
+                            }
+                        }
+                        node.properties._draglines = newDraglines;
+                    },
+                    get() {
+                        return node.properties._draglines ?? [];
+                    }
+                });
+                
                 Object.defineProperty(w, 'value', {
                     set(v) {
                         if(v != '[IMAGE DATA]' &&  v != "") {
@@ -632,6 +710,7 @@ const komojini_widgets = {
                         }
                     },
                 });
+
                 Object.defineProperty(node.properties, "size", {
                     set(v) {
                         node.properties._size = v;
@@ -644,40 +723,6 @@ const komojini_widgets = {
                         }
                     }
                 })
-
-                let drawOnCanvas = function(imageNode, canvasEl, size) {
-                    console.log(`start drawing on canvas size: ${size}`)
-                    if (!imageNode.width) {
-                        console.warn(`No Image node for updating canvas.`)
-                    }
-
-                    var ctx             
-                   
-                    var x=0, y=0, w=imageNode.width, h=imageNode.height;
-                    
-                    if (!size) {
-                        size = node.properties.size;
-                    }
-
-                    canvasEl.width = size[0]
-                    canvasEl.height = size[1]
-
-                    if (canvasEl.getContext) {
-                        ctx = canvasEl.getContext("2d")
-                    }
-                    else if (imageNode.width / imageNode.height > canvasEl.width/canvasEl.height) {
-                        y = 0;
-                        h = imageNode.height
-                        w = imageNode.height * canvasEl.width / canvasEl.height
-                        x = (imageNode.width - w) / 2
-                    } else {
-                        x = 0;
-                        w = imageNode.width
-                        h = imageNode.width * canvasEl.height / canvasEl.width
-                        y = (imageNode.height - h) / 2
-                    }
-                    ctx.drawImage(imageNode, x, y, w, h, 0, 0, canvasEl.width, canvasEl.height)
-                }
 
                 let set_img_act = (v) => {
                     console.log(`set_img_act`)
@@ -711,12 +756,10 @@ const komojini_widgets = {
                     }
                 });
 
-                if (!node.properties) {
-                    node.properties = {}
-                }
 
                 node.closeEditorDialog = function(accept) {
-                    node.dialog.is_opened = false;
+                    node.properties.dialogOpened = false;
+
                     if (accept) {
             
                     }
@@ -724,22 +767,39 @@ const komojini_widgets = {
                 }
                 
                 const openEditorDialog = function(node) {
-                    console.log(`Setup dialog`)
-
-
+                    node.properties.dialogOpened = true;
                     node.dialog = new app.ui.dialog.constructor()
-                    node.dialog.element.classList.add('comfy-settings')
-                    node.dialog.is_opened = false;
+
+                    node.dialog.element.id = "drag-image-canvas";
+                    // node.dialog.element.style.height = "90%";
+                    // node.dialog.element.style.width = "90%";
+                    // node.dialog.element.style.display = "block";
+
+                    console.log(`Setup dialog size: ${node.dialog.element.width}, ${node.dialog.element.height}`)
+
+                    function setTrackingPoints() {
+                        console.log('setTrackingPoints')
+                        draglineTextEl.value = JSON.stringify(node.properties.draglines, null, 0)
+                    }
+
+                    function setTrackingPointsWidget() {
+                        console.log('setTrackingPointsWidget')
+                        dragTextWidget.value = JSON.stringify(node.properties.draglines, null, 0)
+                    }
+
+                    // node.dialog.element.classList.add('comfy-settings')
                     const closeButton = node.dialog.element.querySelector('button')
                     closeButton.textContent = 'CANCEL'
                     const saveButton = document.createElement('button')
                     saveButton.textContent = 'SAVE'
                     saveButton.onclick = () => {
                         node.closeEditorDialog(true)
-                        _updateCanvas()
-                        console.log(dragTextWidget)
+                        // _refreshCanvas()
+                        
                         node.imgs = [imageNode];
-                        dragTextWidget.value = JSON.stringify(node.properties.draglines)
+
+                        setTrackingPoints();
+                        setTrackingPointsWidget();
 
                         if (canvasEl) {
                             const base64Img = canvasEl.toDataURL('image/png');
@@ -751,17 +811,15 @@ const komojini_widgets = {
                     }
                     closeButton.before(saveButton)
                     
-                    node.dialog.is_opened = true;
-                    node.properties.draglines = []
                     node.properties.newline = true
 
                     const container = document.createElement("div")
                     
-                    Object.assign(container.style, {
-                        display: 'flex',
-                        gap: '10px',
-                        flexDirection: 'column',
-                      })
+                    // Object.assign(container.style, {
+                    //     display: 'flex',
+                    //     gap: '10px',
+                    //     flexDirection: 'column',
+                    //   })
             
                     const imageNode =  document.createElement("img")
                     if (node.imgs) {
@@ -774,18 +832,22 @@ const komojini_widgets = {
             
                     const canvasEl = document.createElement("canvas")
                     canvasEl.id = "imageCanvas"
+                    
                     Object.assign(canvasEl, {
                         height: node.properties.size[1],
                         width: node.properties.size[0],
                         style: "border: 1px dotted gray; --darkreader-inline-border-top: #545b5e; --darkreader-inline-border-right: #545b5e; --darkreader-inline-border-bottom: #545b5e; --darkreader-inline-border-left: #545b5e;",
                     })
+                    
                     node.properties.canvas = canvasEl;
                     container.append(canvasEl)
                     
-            
-                    const _updateCanvas = () => {
+
+                    const _refreshCanvas = () => {
                         
                         shared.infoLogger(`Update Dialog Canvas`)
+
+                        node.properties.newline = true;
 
                         var ctx             
                         // const canvasEl = document.getElementById("imageCanvas")
@@ -799,11 +861,15 @@ const komojini_widgets = {
                         node.properties.size = sizeSelectorEl.value.split("x");
                         // node.properties.size = document.getElementById("sizeSelector").value.split("x");
                         const size = node.properties.size;
-                
-                        canvasEl.width = size[0]
-                        canvasEl.height = size[1]
+            
+                        console.log(`Setting canvas size: ${node.properties.size}`)
 
+                        canvasEl.width = size[0];
+                        canvasEl.height = size[1];
 
+                        canvasEl.style = `width: ${size[0]}px; height: ${size[1]}px;`
+                        canvasEl.style.border = "1px dotted gray"
+                        
                         if (!imageNode.width) {
                             console.warn(`No Image node for updating canvas.`)
                         }
@@ -821,6 +887,8 @@ const komojini_widgets = {
                         }
                         ctx.drawImage(imageNode, x, y, w, h, 0, 0, canvasEl.width, canvasEl.height)
 
+                        node.properties.draglines = [];
+                        console.log('canvas updated', canvasEl)
                     }
             
             
@@ -828,56 +896,115 @@ const komojini_widgets = {
                     draglineTextEl.id = "draglinetext"
                     draglineTextEl.style.height = "auto";
                     // draglineTextEl.style.height = draglineTextEl.scrollHeight + 'px'; // Set the height to the scrollHeight
-                    draglineTextEl.value = JSON.stringify(node.properties.draglines, null, 0)
+
+                    function _undo() {
+                        const newDraglines = [...node.properties.draglines];
+
+                        const lastLine = getLast(newDraglines);
+                        lastLine.pop();
+                        if (lastLine.length === 0) {
+                            newDraglines.pop();
+                        }
+                        node.properties.draglines = [...newDraglines];
+                        drawAllLines(node, node.properties.draglines, imageNode, canvasEl);
+                        setTrackingPoints();
+                    }
                     
-                
-                    canvasEl.addEventListener('mousedown', function(e) {
-                        // Get the mouse coordinates relative to the canvas
+                    function handleKeydown(e) {
+                        
+                        if (!node.properties.dialogOpened) {
+                            return;
+                        } 
+
+                        else if (e.key === 'Enter') {
+                            setNewline();
+                            drawAllLines(node, node.properties.draglines, imageNode, canvasEl);
+                        } 
+                        else if (e.key === 'Escape') {
+                            node.closeEditorDialog(false);
+                        }
+
+                        console.log(e);
+                    }
+                    document.addEventListener('keydown', handleKeydown)
+                    
+                    canvasEl.addEventListener('mousedown', handleMouseDown)
+                    canvasEl.addEventListener('mousemove', handleMouseMove)
+                    canvasEl.addEventListener('mouseout', handleMouseOut)
+                    
+                    function handleMouseOut(e) {
+                        console.log("on mouseout");
+                        drawAllLines(node, node.properties.draglines, imageNode, canvasEl);
+                    }
+                    
+                    function handleMouseMove(e) {
                         const rect = canvasEl.getBoundingClientRect();
                         const x = Math.round(e.clientX - rect.left);
                         const y = Math.round(e.clientY - rect.top);
-                        
+                        // var ctx             
 
+                        // if (canvasEl.getContext) {
+                        //     ctx = canvasEl.getContext("2d")
+                        // } 
+                        console.log("on mousemove");
+
+                        var currentDraglines;
+                        
+                        if (node.properties.newline) {
+                            currentDraglines = [...node.properties.draglines, [[x, y]]]
+                        } else {
+                            let prevDragline = getLast(node.properties.draglines) ?? [];
+                            currentDraglines = [...node.properties.draglines];
+                            currentDraglines[currentDraglines.length -1] = [...prevDragline, [x, y]]
+                        }
+
+                        // node.properties.draglines[node.properties.draglines.length -1].push([x, y])
+                        // drawLine(prevxy[0], prevxy[1], x, y, ctx)
+                        setTrackingPoints();
+                        drawAllLines(node, currentDraglines, imageNode, canvasEl);
+                        
+                    }
+                                
+                    function handleMouseDown(e) {
+                        // Get the mouse coordinates relative to the canvas
+                        console.log("mousedown")
+                        const rect = canvasEl.getBoundingClientRect();
+                        
+                        const x = Math.round(e.clientX - rect.left);
+                        const y = Math.round(e.clientY - rect.top);
+                        // console.log(`${e.clientX} - ${rect.left}, ${e.clientY} - ${rect.top}`)
                         // Now, you have the x, y position relative to the canvas
                         console.log('Mouse Down at:', x, y);
                       
                         // Optionally, you can pass x and y to another function
-                        handleMouseDown(x, y);
-                    });
-                                
-                    function handleMouseDown(x, y) {
                         // Do something with x and y, e.g., draw on the canvas
-                        var ctx             
                         // const canvasEl = document.getElementById("imageCanvas")
                         // const imageNode = document.getElementById("canvasImage")
                 
+                        var ctx             
+
                         if (canvasEl.getContext) {
                             ctx = canvasEl.getContext("2d")
-                        }
-            
-                        shared.log(node)
-            
-                        
+                        }          
+
                         if (node.properties.newline) {
-                            node.properties.draglines.push([[x, y]])
+                            node.properties.draglines = [...node.properties.draglines, [[x, y]]]
                             node.properties.newline = false;
             
-                            ctx.arc(x, y, 4, 0, 2 * Math.PI);
-                            ctx.fillStyle = 'red';
-                            ctx.fill();
-                        
-            
                         } else {
-                            // node.properties.draglines 
-                            const prevDraglines = node.properties.draglines
             
-                            const prevxy = getLast(getLast(prevDraglines))
-            
-                            node.properties.draglines[node.properties.draglines.length -1].push([x, y])
-                            drawArrow(prevxy[0], prevxy[1], x, y, ctx)
+                            const prevDragLine = getLast(node.properties.draglines);
+
+                            if (prevDragLine) {
+                                prevDragLine.push([x, y])
+                            } else {
+                                node.properties.draglines = [...node.properties.draglines, [[x, y]]]
+                            }
                         }
 
-                        draglineTextEl.value = JSON.stringify(node.properties.draglines, null, 0)
+                        setTrackingPoints();
+                        drawAllLines(node, node.properties.draglines, imageNode, canvasEl)
+                        // draglineTextEl.value = JSON.stringify(node.properties.draglines, null, 0)
                     }
                     
                     const inputContainer = document.createElement("div")
@@ -903,7 +1030,7 @@ const komojini_widgets = {
             
                     sizeSelectorEl.insertAdjacentHTML("beforeend", sizeOptions)
                                                                 
-                    sizeSelectorEl.onchange = _updateCanvas
+                    sizeSelectorEl.onchange = _refreshCanvas
             
                     const imageInputEl = document.createElement("input")
                     Object.assign(imageInputEl, {
@@ -955,19 +1082,26 @@ const komojini_widgets = {
                         node.properties.draglines = []
                         draglineTextEl.value = JSON.stringify(node.properties.draglines, null, 0)
 
-                        _updateCanvas()
+                        _refreshCanvas()
                     }
                     const refreshButton = document.createElement("button");
                     refreshButton.textContent = "Refresh"
                     refreshButton.style.margin = "5px 10px"
                     refreshButton.onclick = refresh;
 
-                    const newlineButton = document.createElement("button");
-                    newlineButton.textContent = "New Line"
-                    newlineButton.style.margin = "5px 10px"
-                    newlineButton.onclick = () => {
+                    function setNewline() {
                         node.properties.newline = true;
                     }
+
+                    const undoButton = document.createElement("button");
+                    undoButton.textContent = "Undo"
+                    undoButton.style.margin = "5px 10px"
+                    undoButton.onclick = _undo;
+
+                    const newlineButton = document.createElement("button");
+                    newlineButton.textContent = "New Line (Enter)"
+                    newlineButton.style.margin = "5px 10px"
+                    newlineButton.onclick = setNewline;
                     newlineButton.width = 100;
 
             
@@ -976,7 +1110,8 @@ const komojini_widgets = {
             
                     const controlContainer = document.createElement("div")
             
-                    controlContainer.append(refreshButton) 
+                    controlContainer.append(refreshButton)
+                    controlContainer.append(undoButton) 
                     controlContainer.append(newlineButton)
             
                     container.append(controlContainer)
@@ -987,7 +1122,9 @@ const komojini_widgets = {
             
                     container.append(draglineTextEl)
 
-                    _updateCanvas()
+                    _refreshCanvas()
+                    node.properties.draglines = JSON.parse(dragTextWidget.value);
+                    setTrackingPoints();
                 } 
                 
                 
