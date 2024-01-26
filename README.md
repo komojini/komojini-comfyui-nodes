@@ -2,7 +2,6 @@
 Custom ComfyUI Nodes for video generation
 
 - [ DragNUWA Image Canvas](#dragnuwaimagecanvas)
-- [ System Current Status Viewer](#statusviewer)
 - [ Flow Nodes](#flownodes)
 - [Getter & Setter Nodes](#gettersetternodes)
 - [ Video Loading Nodes](#videoloadingnodes)
@@ -19,21 +18,6 @@ Used for DragNUWA nodes witch is from: [https://github.com/chaojie/ComfyUI-DragN
 
 DragNUWA main repo: https://github.com/ProjectNUWA/DragNUWA
 
-
-<a name="statusviewer"></a>
-## System Current Status Viewer
-Shows current status of GPU, CPU, and Memory every 1 second.
-
-<p float="left">
-  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/64954343-d75f-4510-8664-1fafdd40a83d" height="400" />
-  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/5d61b82f-58a8-4309-a58d-8bdc764adcb9" height="400" />
-</p>
-
-- Current GPU memory, usage percentage, temperature
-- Current CPU usage
-- Current RAM usage
-
-Go to settings and check "🔥 Show System Status" to enable it.
 
 ![741E724B-E861-4C93-9E38-D61B06FFD14D_4_5005_c](https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/089ea987-9a6d-4868-bad4-f7f44e2bc85b)
 
@@ -104,4 +88,19 @@ e.g.
 <img width="80%" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/8839b1da-e5c1-41a9-87e4-514e25e113b5"/>
 
 <img width="80%" src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/585b46d7-2a73-4cc2-be29-68d02db0fe1c"/>
+
+<a name="statusviewer"></a>
+## System Current Status Viewer
+Shows current status of GPU, CPU, and Memory every 1 second.
+
+<p float="left">
+  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/64954343-d75f-4510-8664-1fafdd40a83d" height="400" />
+  <img src="https://github.com/komojini/komojini-comfyui-nodes/assets/118584718/5d61b82f-58a8-4309-a58d-8bdc764adcb9" height="400" />
+</p>
+
+- Current GPU memory, usage percentage, temperature
+- Current CPU usage
+- Current RAM usage
+
+Go to settings and check "🔥 Show System Status" to enable it.
 
