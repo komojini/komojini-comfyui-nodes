@@ -214,6 +214,7 @@ async def get_path(request):
 def is_prompt_node_type_of(node_value, node_type: str) -> bool:
     return node_type in node_value.get("class_type", "") or node_type in node_value.get("_meta", {}).get("tile", "")
 
+
 def is_workflow_node_type_of(node_value, node_type: str) -> bool:
     return node_type in node_value.get("type", "")
 
@@ -247,9 +248,11 @@ def search_setter_getter_connected_nodes(json_data):
             inputs = v["inputs"]
             
             if is_prompt_node_type_of(v, "Get"):
-                key = inputs["key"]
+                key = inputs.get("key")
+                if not key:
+                    continue
 
-                if key and class_type.endswith("CachedGetter") and CACHED_MAP.get(key, None) is not None:
+                if class_type.endswith("CachedGetter") and CACHED_MAP.get(key, None) is not None:
                     continue
 
                 if key in key_to_getter_node_ids:
@@ -257,12 +260,15 @@ def search_setter_getter_connected_nodes(json_data):
                 else:
                     key_to_getter_node_ids[key] = [node_id]
             elif is_prompt_node_type_of(v, "Set"):
-                key = inputs["key"]
+                key = inputs.get("key")
+                if not key:
+                    continue
                 key_to_setter_node_id[key] = node_id
+
     return key_to_getter_node_ids, key_to_setter_node_id
  
 
-def search_setter_getter_from_workflow(json_data):
+def search_setter_getter_from_workflow_test(json_data):
     key_to_getter_node_ids = {}
     key_to_setter_node_id = {}
 
@@ -345,6 +351,22 @@ def search_setter_getter_from_workflow(json_data):
     print_info(f"{not_included_nodes_count} Nodes not included in prompt but is activated")
     return key_to_getter_node_ids, key_to_setter_node_id
 
+def search_setter_getter_from_workflow(json_data):
+    key_to_getter_node_ids = {}
+    key_to_setter_node_id = {}
+
+    workflow = json_data["extra_data"]["extra_pnginfo"]["workflow"]
+    nodes = workflow["nodes"]
+    prompt = json_data["prompt"]
+
+    not_included_nodes_count = 0
+    for node in nodes:
+        if node["mode"] == 0 and node["id"] not in prompt:
+            not_included_nodes_count += 1
+
+    print_info(f"{not_included_nodes_count} Nodes not included in prompt but is activated")
+    return key_to_getter_node_ids, key_to_setter_node_id
+
 
 def connect_to_from_nodes(json_data):
     prompt = json_data["prompt"]
@@ -384,7 +406,7 @@ def workflow_update(json_data):
 
 def on_prompt_handler(json_data):
     try:
-        test_prompt(json_data)
+        # test_prompt(json_data)
         search_setter_getter_from_workflow(json_data)
         connect_to_from_nodes(json_data)
 

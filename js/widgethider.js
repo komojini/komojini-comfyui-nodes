@@ -109,6 +109,9 @@ const nodeWidgetHandlers = {
     "UltimateVideoLoader (simple)": {
         "source": handleUltimateVideoLoaderSource,
     },
+    "BatchCreativeInterpolationNodeDynamicSettings": {
+        "image_count": handleBatchCreativeInterpolationNodeDynamicSettingsVisibility,
+    }
 };
 
 // In the main function where widgetLogic is called
@@ -145,13 +148,42 @@ function handleUltimateVideoLoaderVisibility(node, source) {
     }
 }
 
+function handleBatchCreativeInterpolationNodeDynamicSettingsVisibility(node, widget) {
+    handleVisibility(node, widget.value, "BatchCreativeInterpolationNodeDynamicSettings")
+}
+
+const MAX_COUNT_VALUE = 50
 
 function handleUltimateVideoLoaderSource(node, widget) {
     handleInputModeWidgetsVisibility(node, widget.value);
     handleUltimateVideoLoaderVisibility(node, widget.value);
 }
 
+function handleVisibility(node, countValue, nodeType) {
+    const baseNamesMap = {
+        "BatchCreativeInterpolationNodeDynamicSettings": [
+            "frame_distribution",
+            "key_frame_influence",
+            "min_strength_value",
+            "max_strength_value",
+        ],
+    }
+    const baseNames = baseNamesMap[nodeType]
 
+    
+    for (let i=1; i <= MAX_COUNT_VALUE; i++) {
+        const widgets = baseNames.map((n) => findWidgetByName(node, `${n}_${i}`))
+
+        if (i <= countValue) {
+            widgets?.forEach((w) => {
+                
+                toggleWidget(node, w, true)}
+            )
+        } else {
+            widgets?.forEach((w) => toggleWidget(node, w, false))
+        }
+    }
+}
 
 app.registerExtension({
     name: "komojini.widgethider",

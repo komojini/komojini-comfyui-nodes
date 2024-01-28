@@ -22,5 +22,6 @@ __all__ = [
     "DragNUWAImageCanvas",
     "ImageCropByRatio",
     "ImageCropByRatioAndResize",
-    "ImagesCropByRatioAndResizeBatch"
+    "ImagesCropByRatioAndResizeBatch",
+    "BatchCreativeInterpolationNodeDynamicSettings",
 ]

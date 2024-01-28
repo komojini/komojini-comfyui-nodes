@@ -263,6 +263,54 @@ class DragNUWAImageCanvas:
         return (image, tracking_points, )
 
 
+MAX_IMAGE_COUNT = 50
+
+class BatchCreativeInterpolationNodeDynamicSettings:
+    @classmethod
+    def INPUT_TYPES(s):
+        inputs = {
+            "required": {
+                "image_count": ("INT", {"default": 1, "min": 1, "max": MAX_IMAGE_COUNT, "step": 1}),
+            },
+        }
+
+        for i in range(1, MAX_IMAGE_COUNT):
+            if i == 1:
+                inputs["required"][f"frame_distribution_{i}"] = ("INT", {"default": 4, "min": 4, "max": 64, "step": 1})
+            else:
+                inputs["required"][f"frame_distribution_{i}"] = ("INT", {"default": 16, "min": 4, "max": 64, "step": 1})
+            
+            inputs["required"][f"key_frame_influence_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.1})
+            inputs["required"][f"min_strength_value_{i}"] = ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.1})
+            inputs["required"][f"max_strength_value_{i}"] = ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.1})
+
+        return inputs
+    
+    RETURN_TYPES = ("STRING", "STRING", "STRING",)
+    RETURN_NAMES = ("dynamic_frame_distribution_values", "dynamic_key_frame_influence_values", "dynamic_strength_values",)
+
+    FUNCTION = "run"
+
+    def run(self, image_count, **kwargs):
+        dynamic_frame_distribution_values = ""
+        dynamic_key_frame_influence_values = ""
+        dynamic_strength_values = ""
+
+        previous_frame_distribution = 0
+
+        for i in range(1, image_count+1):
+            previous_frame_distribution += kwargs.get(f"frame_distribution_{i}", 0)
+
+            distribution_value = str(previous_frame_distribution) + ","
+            influence_value = str(kwargs.get(f"key_frame_influence_{i}")) + ","
+            strength_value = "({min},{max}),".format(min=kwargs.get(f"min_strength_value_{i}"), max=kwargs.get(f"max_strength_value_{i}"))
+            
+            dynamic_frame_distribution_values += distribution_value
+            dynamic_key_frame_influence_values += influence_value
+            dynamic_strength_values += strength_value
+
+        return (dynamic_frame_distribution_values[:-1], dynamic_key_frame_influence_values[:-1], dynamic_strength_values[:-1],)
+    
 __all__ = [
     "To",
     "From",
@@ -271,4 +319,5 @@ __all__ = [
     "FlowBuilder",
     "FlowBuilderSetter",
     "DragNUWAImageCanvas",
+    "BatchCreativeInterpolationNodeDynamicSettings",
 ]

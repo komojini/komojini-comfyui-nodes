@@ -30,6 +30,7 @@ NODE_CLASS_MAPPINGS = {
     "ImageCropByRatio": ImageCropByRatio,
     "ImageCropByRatioAndResize": ImageCropByRatioAndResize,
     "ImagesCropByRatioAndResizeBatch": ImagesCropByRatioAndResizeBatch,
+    "BatchCreativeInterpolationNodeDynamicSettings": BatchCreativeInterpolationNodeDynamicSettings,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -55,6 +56,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ImageCropByRatio": "ImageCropByRatio",
     "ImageCropByRatioAndResize": "ImageCropByRatioAndResize",
     "ImagesCropByRatioAndResizeBatch": "ImagesCropByRatioAndResizeBatch",
+    "BatchCreativeInterpolationNodeDynamicSettings": "BatchCreativeInterpolationNodeDynamicSettings",
 }
 
 
