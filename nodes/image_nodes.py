@@ -231,6 +231,8 @@ class ImagesCropByRatioAndResizeBatch(ImageCropByRatioAndResize):
         
         output_images = torch.cat(output_images, dim=0)
 
+        print(f"image crop by ratio and resize image shape: {output_images.shape}")
+
         return (output_images, width, height, )
 
 

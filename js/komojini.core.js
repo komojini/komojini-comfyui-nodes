@@ -141,7 +141,11 @@ function useKVState(nodeType) {
 }
 
 function fitHeight(node) {
-    node.setSize([node.size[0], node.computeSize([node.size[0], node.size[1]])[1]])
+    try {
+        node.setSize([node.size[0] ?? 0, node.computeSize([node.size[0] ?? 0, node.size[1] ?? 0])[1]])
+    } catch {
+        
+    }
     node?.graph?.setDirtyCanvas(true);
 }
 

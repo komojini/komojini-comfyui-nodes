@@ -801,6 +801,8 @@ const komojini_widgets = {
                         setTrackingPointsWidget();
 
                         if (canvasEl) {
+                            const ctx = canvasEl.getContext('2d');
+                            _drawImage(node, imageNode, canvasEl, ctx);
                             const base64Img = canvasEl.toDataURL('image/png');
                             w.value = base64Img;
                         }
